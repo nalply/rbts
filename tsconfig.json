@@ -1,0 +1,13 @@
+{
+  "exclude": [ "test.ts", "dist" ],
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "stripInternal": true,
+    "sourceMap": true,
+    "declaration": true,
+    "pretty": true,
+    "strict": true
+  }
+}
