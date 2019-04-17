@@ -1,45 +1,25 @@
-// Overview about the type variables, classes and interfaces:
-// K: key type of the tree
-// V: value type of the tree
-// R: iterator result value type, for example [K, V] for entries()
-// N: tree node type, typically Node<K, V>
-// T: tree type depending on K and V
-// interface IterTree<N>: nextNode() firstNode() for iterator implementations
-// export class Tree<K, V>: red-black tree implementing Map and TreeEx<N>
-// class Node<K, V>: red-black node with pointers to parent, left and right
-// class Iter<K, V, R, N, T>: iterator implementing IterEx<R, N>
+// Overview about the type variables, classes and interfaces
+// ----------------------------------------------------------------------------
+// K            key type
+// V            value type
+// R            iterator result value type, for example [K, V] for entries()
+// N            tree node type, typically N extends Node<K, V>
+// T            tree type, typically T extends IterTree<N>
+// LessOp<K>    function of a and b to return true if a < b
+// Tree<K, V>   red-black tree implementing Map and TreeEx<N>
+// Node<K, V>   red-black node with pointers to parent, left and right
+// IterTree<N>  provide Tree.nextNode() and Tree.firstNode() for iterators
+// Iter<K, V, R, N, T> iterator implementing IterableIterator<R>
+// ----------------------------------------------------------------------------
+// Convention: Names starting with _ aren't public. You are on your own if you
+// use them. They are excluded from *.d.ts files by @internal anyway.
 
-// Names starting with _ aren't public. They are used internally and for tests.
-// Reading properties with such a name should be okay, however there is no
-// guarantee of anything. Modifying is dangerous, however.
-
-export type LessOp<K> = (a: K, b: K) => boolean
+type Assignable<K, V> = Iterator<[K, V]> | Array<[K, V]> | {}
 
 export class Tree<K = string, V = any> implements Map<K, V> {
   /** @internal */ _root: Node<K, V> = Node.nil
   /** @internal */ _size: number = 0
   /** @internal */ _less: LessOp<K>
-
-  constructor(
-    iterable?: Iterable<[K, V]>,
-    less: LessOp<K> = (a, b) => a < b, 
-  ) {
-    this._less = less
-    if (iterable) this.assign(iterable)
-  }
-
-  toString(): string { 
-    return `[Tree size: ${this.size}]`
-  }
-
-  /** @internal */ _dump(node = this.root): string {
-    if (nil(node)) return '·'
-
-    let key = node.key.toString().substr(0, 10)
-    let o = node.red ? '«' : '<'
-    let c = node.red ? '»' : '>'
-    return o + this._dump(node.left) + key + this._dump(node.right) + c
-  } 
 
   get lessOp() {
     return this._less
@@ -49,18 +29,40 @@ export class Tree<K = string, V = any> implements Map<K, V> {
     return this._root
   }
 
+  constructor(
+    source?: Assignable<K, V>,
+    less: LessOp<K> = (a, b) => a < b,
+  ) {
+    this._less = less
+    if (source) this.assign(source)
+  }
+
+  toString(): string {
+    return `[Tree size: ${this.size}]`
+  }
+
+  /** @internal */ _dump(node = this.root): string {
+    if (nil(node)) return '·'
+
+    const key = node.key.toString().substr(0, 10)
+    const o = node.red ? '«' : '<'
+    const c = node.red ? '»' : '>'
+    return o + this._dump(node.left) + key + this._dump(node.right) + c
+  }
+
   // --- Start implementing Map ---
 
-  get size() { 
+  get size() {
     return this._size
   }
+  [Symbol.toStringTag]: string = 'Tree'
 
-  has(key: K): boolean { 
-    return ok(this.findNode(key)) 
+  has(key: K): boolean {
+    return ok(this.findNode(key))
   }
 
-  get(key: K): V | undefined { 
-    return this.find(key) 
+  get(key: K): V | undefined {
+    return this.find(key)
   }
 
   set(key: K, value: V): this {
@@ -69,7 +71,7 @@ export class Tree<K = string, V = any> implements Map<K, V> {
     return this
   }
 
-  delete(key: K): boolean { 
+  delete(key: K): boolean {
     return this.deleteNode(this.findNode(key))
   }
 
@@ -82,12 +84,12 @@ export class Tree<K = string, V = any> implements Map<K, V> {
     for (const key of this.keys()) f.call(f, self, key, this)
   }
 
-  [Symbol.iterator](): IterableIterator<[K, V]> { 
-    return this.entries() 
+  [Symbol.iterator](): IterableIterator<[K, V]> {
+    return this.entries()
   }
 
-  entries(): IterableIterator<[K, V]> { 
-    return this._iterator<[K, V]>(node => node.entry()) 
+  entries(): IterableIterator<[K, V]> {
+    return this._iterator<[K, V]>(node => node.entry())
   }
 
   keys(): IterableIterator<K> {
@@ -98,15 +100,16 @@ export class Tree<K = string, V = any> implements Map<K, V> {
     return this._iterator<V>(node => node.value)
   }
 
-  [Symbol.toStringTag]: string = 'Tree'
-
   // TODO perhaps: https://github.com/tc39/proposal-collection-methods
 
   // --- End implementing Map ---
 
+  // @param get    function to map from node to iterator value R
+  // @param start  start node for iterating over a tree subset (inclusive)
+  // @param end    end node for iterating over a tree subset (exclusive)
   /** @internal */ _iterator<R>(
-    get: (node: Node<K, V>) => R, start?: Node<K, V>, end?: Node<K, V>
-  ) { 
+    get: (node: Node<K, V>) => R, start?: Node<K, V>, end?: Node<K, V>,
+  ): IterableIterator<R> {
     return new Iter<K, V, R, Node<K, V>, Tree<K, V>>(this, get, start, end)
   }
 
@@ -114,10 +117,14 @@ export class Tree<K = string, V = any> implements Map<K, V> {
     return this._iterator<Node<K, V>>(node => node, start, end)
   }
 
-  assign(source: Iterable<[K, V]>): this {
-    for (const entry of source)
+  // assign all entries from source to the tree
+  assign(source: Assignable<K, V>): this {
+    if (!isIterable(source))
+      source = Object.entries(source) as any
+
+    for (const entry of source as Iterable<[K, V]>)
       this.insert(entry[0], entry[1])
-    return this  
+    return this
   }
 
   firstNode(node: Node<K, V> = this.root): Node<K, V> {
@@ -125,7 +132,7 @@ export class Tree<K = string, V = any> implements Map<K, V> {
     return node
   }
 
-  lastNode(node: Node<K, V> = this.root) {
+  lastNode(node: Node<K, V> = this.root): Node<K, V> {
     while (ok(node.right)) node = node.right
     return node
   }
@@ -140,8 +147,8 @@ export class Tree<K = string, V = any> implements Map<K, V> {
     }
     return parent
   }
-  
-  prevNode(node: Node<K, V>) {
+
+  prevNode(node: Node<K, V>): Node<K, V> {
     if (nil(node)) return node
     if (ok(node.left)) return this.lastNode(node.left)
     let parent = node.parent
@@ -151,19 +158,19 @@ export class Tree<K = string, V = any> implements Map<K, V> {
     }
     return parent
   }
-  
+
   findNode(
-    key: K, 
+    key: K,
     node: Node<K, V> = this.root,
   ): Node<K, V> {
     while (ok(node) && node.key !== key)
       node = this._less(key, node.key) ? node.left : node.right
-    
+
     return node
   }
 
   find(
-    key: K, 
+    key: K,
     node: Node<K, V> = this.root,
   ): V | undefined {
     node = this.findNode(key, node)
@@ -182,7 +189,7 @@ export class Tree<K = string, V = any> implements Map<K, V> {
     let parent, n
     parent = n = this.root
     while (ok(n)) {
-      parent = n 
+      parent = n
       n = this._less(key, n.key) ? n.left : n.right
     }
     node._parent = parent
@@ -191,17 +198,16 @@ export class Tree<K = string, V = any> implements Map<K, V> {
     else parent._right = node
     node._red = true
 
-    // Preserve the red-black properties of tree after the insert
+    // Reinstate the red-black tree invariants after the insert
     parent = node.parent
     while (parent.red) {
-      let grandp: Node<K, V> = parent.parent
+      const grandp: Node<K, V> = parent.parent
       if (parent === grandp.left) {
-        let uncle = grandp.right
-        if (uncle.red) {
-          parent._black = uncle._black = grandp._red = true
+        if (grandp.right.red) {
+          parent._black = grandp.right._black = grandp._red = true
           node = grandp
           continue
-        } 
+        }
         if (node === parent.right) {
           this._leftRotate(node = parent)
           continue
@@ -209,13 +215,12 @@ export class Tree<K = string, V = any> implements Map<K, V> {
         parent._black = grandp._red = true
         this._rightRotate(grandp)
         continue
-      } 
-      let uncle = grandp.left
-      if (uncle.red) {
-        parent._black = uncle._black = grandp._red = true
+      }
+      if (grandp.left.red) {
+        parent._black = grandp.left._black = grandp._red = true
         node = grandp
         continue
-      } 
+      }
       if (node === parent.left) {
         this._rightRotate(node = parent)
         continue
@@ -237,7 +242,7 @@ export class Tree<K = string, V = any> implements Map<K, V> {
       node._key = next.key
       node.value = next.value
     }
-    let child = next.left || next.right
+    const child = next.left || next.right
     if (ok(child)) child._parent = next.parent
     if (nil(next.parent)) this._root = child
     else if (next === next.parent.left) next.parent._left = child
@@ -245,7 +250,7 @@ export class Tree<K = string, V = any> implements Map<K, V> {
 
     if (next.red) return true
 
-    // Preserve the red-black properties of tree after the delete
+    // Reinstate the red-black tree invariants after the delete
     node = child
     let parent = next.parent
     while (node !== this.root && node.red) {
@@ -259,7 +264,7 @@ export class Tree<K = string, V = any> implements Map<K, V> {
         if (brother.left.red && brother.right.red) {
           brother._red = true
           node = parent
-        } 
+        }
         else {
           if (brother.right.black) {
             brother.left._black = brother._red = true
@@ -281,7 +286,7 @@ export class Tree<K = string, V = any> implements Map<K, V> {
         if (brother.left.red && brother.right.red) {
           brother._red = true
           node = parent
-        } 
+        }
         else {
           if (brother.left.red) {
             brother.right._black = brother._red = true
@@ -297,11 +302,11 @@ export class Tree<K = string, V = any> implements Map<K, V> {
       parent = node.parent
     }
     if (node.red) node._black = true // nil is black and can't be assigned
-    return true 
+    return true
   }
 
   /** @internal */ _leftRotate(node: Node<K, V>) {
-    let child = node.right
+    const child = node.right
     node._right = child.left
     if (ok(child.left)) child.left._parent = node
     child._parent = node.parent
@@ -313,7 +318,7 @@ export class Tree<K = string, V = any> implements Map<K, V> {
   }
 
   /** @internal */ _rightRotate(node: Node<K, V>) {
-    let child = node.left
+    const child = node.left
     node._left = child.right
     if (ok(child.right)) child.right._parent = node
     child._parent = node.parent
@@ -345,7 +350,7 @@ export class Tree<K = string, V = any> implements Map<K, V> {
         if (l.red) return 'left of red not black' + s
         if (r.red) return 'right of red not black' + s
       }
-      if (ok(p) && node !== p.left && node != p.right) return notChild
+      if (ok(p) && node !== p.left && node !== p.right) return notChild
       if (ok(r) && node !== r.parent) return 'not left\'s child' + s
       if (ok (l) && node !== l.parent) return 'not right\'s child' + s
       if (ok(r) && this._less(r.key, node.key)) return 'right is greater' + s
@@ -357,9 +362,9 @@ export class Tree<K = string, V = any> implements Map<K, V> {
         // we already walked up in Node._depth(), no need to check for cycles
         while (ok(walkup = walkup.parent)) blackDepth2 += +node.black
 
-        const bad = `black depth ${blackDepth2}, expected ${blackDepth}` + s 
-        if (null == blackDepth) blackDepth = blackDepth2
-        else if (blackDepth != blackDepth2) return bad
+        const bad = `black depth ${blackDepth2}, expected ${blackDepth}` + s
+        if (null === blackDepth) blackDepth = blackDepth2
+        else if (blackDepth !== blackDepth2) return bad
       }
 
       walked.add(node)
@@ -374,22 +379,23 @@ export class Tree<K = string, V = any> implements Map<K, V> {
   }
 }
 
+function isIterable(obj: any): obj is Iterable<unknown> {
+  return obj && typeof obj[Symbol.iterator] === 'function'
+}
 
+export type LessOp<K> = (a: K, b: K) => boolean
 
-/** @internal */ interface _Walkup { parent: _Walkup }
+interface Walkup { parent: Walkup }
 
 export class Node<K, V> {
-  static readonly nil = (() => {
-    const nil = new Node<any, any>(undefined, undefined)
-    return Object.freeze(nil._parent = nil._left = nil._right = nil)
-  })()  // Node.nil must not be modified
-
   /** @internal */ _key: K
   /** @internal */ _value: V          // Node.nil is Readonly<Node<K, V>>
   /** @internal */ _parent: Node<K, V> = Node.nil as Node<K, V>
   /** @internal */ _left: Node<K, V> = Node.nil as Node<K, V>
   /** @internal */ _right: Node<K, V> = Node.nil as Node<K, V>
   /** @internal */ _black: boolean = true
+
+  /** @internal */ set _red(value: boolean) { this._black = !value }
 
   constructor(key: K, value: V) {
     this._key = key
@@ -404,7 +410,25 @@ export class Node<K, V> {
   get parent(): Node<K, V> { return this._parent }
   get black(): boolean { return this._black }
   get red(): boolean { return !this._black }
-  set _red(value: boolean) { this._black = !value }
+  static readonly nil = (() => {
+    const node = new Node<any, any>(undefined, undefined)
+    return Object.freeze(node._parent = node._left = node._right = node)
+  })()  // Node.nil must not be modified
+
+  // Node depth (0 if nil and Infinity if there was a cycle), not efficient
+// tslint:disable-next-line: member-ordering
+  /** @internal */ static _depth(node: Walkup): number {
+    const walked = new Set<Walkup>()
+    let depth = 0
+    while (ok(node)) {
+      if (walked.has(node)) return Infinity // cycle detected
+      walked.add(node)
+      depth++
+      node = node.parent
+    }
+    return depth
+  }
+
   entry(): [K, V] { return [ this.key, this.value ] }
 
   toString(detailed = false): string {
@@ -417,21 +441,9 @@ export class Node<K, V> {
     const childrenKeys = detailed ? `${left} ${right}` : ''
     return `${o}${key}:${value} ${childrenKeys}${c}`
   }
-
-  // Node depth (0 if null and Infinity if there was a cycle), not efficient
-  /** @internal */ static _depth(node: _Walkup): number {
-    let depth = 0, walked = new Set<_Walkup>()
-    while (ok(node)) {
-      if (walked.has(node)) return Infinity // cycle detected
-      walked.add(node)
-      depth++
-      node = node.parent
-    }
-    return depth
-  }
 }
 
-type NilCheckParameter = Node<unknown, unknown> | _Walkup
+type NilCheckParameter = Node<unknown, unknown> | Walkup
 
 function nil(node: NilCheckParameter): boolean {
   return node === Node.nil
@@ -446,7 +458,9 @@ interface IterTree<N> {
   firstNode(): N
 }
 
-class Iter<K, V, R, N extends Node<K, V>, T extends IterTree<N>> {
+class Iter<K, V, R, N extends Node<K, V>, T extends IterTree<N>>
+implements IterableIterator<R>
+{
   /** @internal */ _node: N
   /** @internal */ _end: N
   /** @internal */ _tree: T
@@ -455,10 +469,10 @@ class Iter<K, V, R, N extends Node<K, V>, T extends IterTree<N>> {
   get node(): N { return this._node }
 
   constructor(
-    tree: T, 
-    result: (node: N) => R, 
-    start: N = tree.firstNode(), 
-    end: N = Node.nil as N, 
+    tree: T,
+    result: (node: N) => R,
+    start: N = tree.firstNode(),
+    end: N = Node.nil as N,
   ) {
     this._tree = tree
     this._result = result
@@ -469,11 +483,11 @@ class Iter<K, V, R, N extends Node<K, V>, T extends IterTree<N>> {
   [Symbol.iterator](): IterableIterator<R> { return this }
 
   next(): IteratorResult<R> {
-    const done = this._node == this._end
+    const done = this._node === this._end
     const value = done ? undefined : this._result(this._node)
     this._node = this._tree.nextNode(this.node)
     return { done, value } as IteratorResult<R>
-
+    //                     ^^^^^^^^^^^^^^^^^^^^
     // I think that IteratorResult<R> is too strictly defined. MDN says about
     // the iterator protocol: 1. «...value optionally specifies...» and 2.
     // «...equivalent of not specifying the done property...»

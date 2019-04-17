@@ -1,23 +1,29 @@
-import { Tree, Node }  from './redblack'
 import * as chai from 'chai'
+import { Node, Tree } from './redblack'
 
-const { strictEqual, deepEqual, isFalse, isTrue, isUndefined } = chai.assert
-
+const {
+  strictEqual, deepEqual, isFalse, isTrue, isUndefined, fail,
+} = chai.assert
 
 const isNilNode = (value: any) =>
   chai.assert(value === Node.nil, 'not a nil Node')
-const isOkNode = (value: any) => 
-  chai.assert(value.constructor !== Node || value !== Node.nil, 
+const isOkNode = (value: any) =>
+  chai.assert(value.constructor !== Node || value !== Node.nil,
     'not an ok Node')
 
-suite('red black tree')
 
-test('empty', () => {
+suite('empty tree')
+
+
+test('RBT invariants', () => {
+  isFalse(new Tree()._invariantViolated())
+})
+
+
+test('tree properties', () => {
   const rbt = new Tree
 
-  isFalse(rbt._invariantViolated(), 'invariant violated')
   strictEqual(rbt.size, 0)
-  
   isNilNode(rbt.root)
   isUndefined(rbt.root.key)
   isUndefined(rbt.root.value)
@@ -33,38 +39,45 @@ test('empty', () => {
   isFalse(rbt.has('whatever'))
 })
 
-test('one insertion, one deletion', () => {
-  const rbt = new Tree<string, symbol>()
-  const sym = Symbol('sym')
 
-  rbt.set('sym', sym)
-  isFalse(rbt._invariantViolated(), 'invariant violated')
+suite('one insertion')
+
+
+test('RBT invariants', () => {
+  isFalse(new Tree({a: 'alpha'})._invariantViolated())
+})
+
+
+test('tree properties', () => {
+  const rbt = new Tree<string, string>({a: 'alpha'})
+
   isUndefined(rbt.find('whatever'))
   isNilNode(rbt.findNode('whatever'))
-  isOkNode(rbt.findNode('sym'))
+  isOkNode(rbt.findNode('a'))
   isFalse(rbt.has('whatever'))
   strictEqual(rbt.size, 1)
-  strictEqual(rbt.firstNode().key, 'sym')
-  strictEqual(rbt.firstNode().value, sym)
-  deepEqual(rbt.root.entry(), [ 'sym', sym ])
+  strictEqual(rbt.firstNode().key, 'a')
+  strictEqual(rbt.firstNode().value, 'alpha')
+  deepEqual(rbt.root.entry(), [ 'a', 'alpha' ])
   strictEqual(rbt.root, rbt.firstNode())
   strictEqual(rbt.firstNode(), rbt.lastNode())
-  strictEqual(rbt.find('sym'), sym)
-  strictEqual(rbt.findNode('sym'), rbt.root)
-  isTrue(rbt.has('sym'))
+  strictEqual(rbt.find('a'), 'alpha')
+  strictEqual(rbt.findNode('a'), rbt.root)
+  isTrue(rbt.has('a'))
   isNilNode(rbt.nextNode(rbt.root))
   isNilNode(rbt.prevNode(rbt.root))
   isNilNode(rbt.root.parent)
   isNilNode(rbt.root.left)
   isNilNode(rbt.root.right)
   isTrue(rbt.root.black)
+})
 
-  const iter = rbt.entries()
-  deepEqual(iter.next(), { done: false, value: [ 'sym', sym ]})
-  const result = iter.next()
-  isTrue(result.done)
-  isUndefined(result.value)
 
+suite('one insertion, one deletion')
+
+
+test('tree properties', () => {
+  const rbt = new Tree<string, string>({a: 'alpha'})
   rbt.deleteNode(rbt.root)
   strictEqual(rbt.size, 0)
   isNilNode(rbt.root)
@@ -72,12 +85,31 @@ test('one insertion, one deletion', () => {
   isNilNode(rbt.lastNode())
 })
 
-// TODO test iteration start-end
+
+suite('iteration')
 
 
-test('insertion of several items', () => {
-  let entries: [string, string][] = []
-  for (let c = 97; c <= 122; c++) 
+test('one insertion', () => {
+  const rbt = new Tree<string, string>({a: 'alpha'})
+  const iter = rbt.entries()
+  deepEqual(iter.next(), { done: false, value: [ 'a', 'alpha' ]})
+  const result = iter.next()
+  isTrue(result.done)
+  isUndefined(result.value)
+})
+
+
+test('start-end', () => {
+  fail('unimplemented')
+})
+
+
+suite('alphabet insertion')
+
+
+test('tree properties', () => {
+  const entries: Array<[string, string]> = []
+  for (let c = 97; c <= 122; c++)
     entries.push([String.fromCodePoint(c), '' + c])
 
   const rbt = new Tree<string, string>(entries)
@@ -89,8 +121,8 @@ test('insertion of several items', () => {
 
 
 test('balanced tree', () => {
-  let entries: [string, string][] = []
-  for (let c = 97; c <= 122; c++) 
+  const entries: Array<[string, string]> = []
+  for (let c = 97; c <= 122; c++)
     entries.push([String.fromCodePoint(c), '' + c])
 
   const rbt = new Tree<string, string>(entries)
@@ -99,12 +131,19 @@ test('balanced tree', () => {
 })
 
 
-test('delete', () => {
-  const entries = Object.entries({ a: 'alpha', b: 'beta', g: 'gamma' })
-  const rbt = new Tree<string, string>(entries)
+suite('deletion')
+
+
+test('single', () => {
+  const rbt = new Tree<string, string>({ a: 'alpha', b: 'beta', g: 'gamma' })
   strictEqual([...rbt.keys()].join(), 'a,b,g')
   const node = rbt.findNode('b')
 })
 
 
-// todo: concurrent modification in iteration?
+suite('concurrent modification')
+
+
+test('tree properties', () => {
+  fail('unimplemented')
+})
