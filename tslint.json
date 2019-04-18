@@ -17,7 +17,8 @@
         "interface-name": [ false ],
         "member-ordering": [ true, "instance-sandwich" ],
         "new-parens": [ false ],
-        "no-consecutive-blank-lines": [ true, 2 ]
+        "no-consecutive-blank-lines": [ true, 2 ],
+        "no-console": [ false ]
     },
     "rulesDirectory": []
 }
