@@ -1,3 +1,9 @@
+![Red Black Tree SVG](https://upload.wikimedia.org/wikipedia/commons/1/10/Red-black_tree_example_nN.svg)
+
+[![Test Badge](https://pallas.txk.ch/nalply/rbts/badge?branch=master)](https://pallas.txk.ch/nalply/rbts/)
+
+---
+
 # A red-black tree implementation in Typescript
 
 A red-black tree is a datastructure for sorted storage of key-value pairs.
