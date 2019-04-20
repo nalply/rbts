@@ -1,5 +1,7 @@
 import * as chai from 'chai'
-import { Node, Tree } from './redblack'
+import { debug } from 'debug'
+import { nil, Node, ok } from './node'
+import { Tree } from './tree'
 
 const {
   equal, strictEqual, deepEqual,
@@ -13,12 +15,20 @@ const isOkNode = (value: any) =>
   chai.assert(value.constructor !== Node || value !== Node.nil,
     'not an ok Node')
 
+const dbg = debug('rbts:test')
+function invariantViolated(tree: Tree<any, any>) {
+  const result = tree._invariantViolated()
+  if (result) debug('rbts:invariant-violated')('invariant violated: ' + result)
+  return result
+}
 
+
+// ----------------------------------------------------------------------------
 suite('empty tree')
 
 
 test('RBT invariants', () => {
-  isFalse(new Tree()._invariantViolated())
+  isFalse(invariantViolated(new Tree()))
 })
 
 
@@ -26,68 +36,70 @@ test('tree properties', () => {
   const rbt = new Tree
 
   strictEqual(rbt.size, 0)
-  isNilNode(rbt.root)
-  strictEqual(rbt.root.key as any, Node._nilKey)
-  strictEqual(rbt.root.value as any, Node._nilValue)
-  isTrue(rbt.root.black)
-  isNilNode(rbt.root.parent)
-  isNilNode(rbt.root.left)
-  isNilNode(rbt.root.right)
+  isNilNode(rbt._root)
+  strictEqual(rbt._root.key as any, Node.nil.key)
+  strictEqual(rbt._root.value as any, Node.nil.value)
+  isTrue(rbt._root.black)
+  isNilNode(rbt._root.parent)
+  isNilNode(rbt._root.left)
+  isNilNode(rbt._root.right)
 
-  isNilNode(rbt.firstNode())
-  isNilNode(rbt.lastNode())
-  isUndefined(rbt.find('whatever'))
-  isNilNode(rbt.findNode('whatever'))
+  isNilNode(rbt._firstNode())
+  isNilNode(rbt._lastNode())
+  isUndefined(rbt.get('whatever'))
+  isNilNode(rbt._findNode('whatever'))
   isFalse(rbt.has('whatever'))
 })
 
 
+// ----------------------------------------------------------------------------
 suite('one insertion')
 
 
 test('RBT invariants', () => {
-  isFalse(new Tree({a: 'alpha'})._invariantViolated())
+  isFalse(invariantViolated(new Tree({a: 'alpha'})))
 })
 
 
 test('tree properties', () => {
   const rbt = new Tree<string, string>({a: 'alpha'})
 
-  isUndefined(rbt.find('whatever'))
-  isNilNode(rbt.findNode('whatever'))
-  isOkNode(rbt.findNode('a'))
+  isUndefined(rbt.get('whatever'))
+  isNilNode(rbt._findNode('whatever'))
+  isOkNode(rbt._findNode('a'))
   isFalse(rbt.has('whatever'))
   strictEqual(rbt.size, 1)
-  strictEqual(rbt.firstNode().key, 'a')
-  strictEqual(rbt.firstNode().value, 'alpha')
-  deepEqual(rbt.root.entry(), [ 'a', 'alpha' ])
-  strictEqual(rbt.root, rbt.firstNode())
-  strictEqual(rbt.firstNode(), rbt.lastNode())
-  strictEqual(rbt.find('a'), 'alpha')
-  strictEqual(rbt.findNode('a'), rbt.root)
+  strictEqual(rbt._firstNode().key, 'a')
+  strictEqual(rbt._firstNode().value, 'alpha')
+  deepEqual(rbt._root.entry(), [ 'a', 'alpha' ])
+  strictEqual(rbt._root, rbt._firstNode())
+  strictEqual(rbt._firstNode(), rbt._lastNode())
+  strictEqual(rbt.get('a'), 'alpha')
+  strictEqual(rbt._findNode('a'), rbt._root)
   isTrue(rbt.has('a'))
-  isNilNode(rbt.nextNode(rbt.root))
-  isNilNode(rbt.prevNode(rbt.root))
-  isNilNode(rbt.root.parent)
-  isNilNode(rbt.root.left)
-  isNilNode(rbt.root.right)
-  isTrue(rbt.root.black)
+  isNilNode(rbt._nextNode(rbt._root))
+  isNilNode(rbt._root.parent)
+  isNilNode(rbt._root.left)
+  isNilNode(rbt._root.right)
+  isTrue(rbt._root.black)
 })
 
 
+// ----------------------------------------------------------------------------
 suite('one insertion, one deletion')
 
 
 test('tree properties', () => {
   const rbt = new Tree<string, string>({a: 'alpha'})
-  rbt.deleteNode(rbt.root)
+  rbt._deleteNode(rbt._root)
   strictEqual(rbt.size, 0)
-  isNilNode(rbt.root)
-  isNilNode(rbt.firstNode())
-  isNilNode(rbt.lastNode())
+  isNilNode(rbt._root)
+  isNilNode(rbt._firstNode())
+  isNilNode(rbt._lastNode())
 })
 
 
+// ----------------------------------------------------------------------------
 suite('iteration')
 
 
@@ -102,15 +114,16 @@ test('one insertion', () => {
 //                                                      --^--
 // https://github.com/Microsoft/TypeScript/issues/11375#issuecomment-413037242
 
-  const nodes = rbt.nodes()
+  const nodes = rbt._nodes()
   const node = nodes.next().value
   equal(node.key, 'a')
   equal(node.value, 'alpha')
 
-  isFalse(rbt._invariantViolated())
+  isFalse(invariantViolated(rbt))
 })
 
 
+// ----------------------------------------------------------------------------
 test('start-end', () => {
   const rbt = new Tree<string, number>({
     0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9,
@@ -119,37 +132,37 @@ test('start-end', () => {
   equal([...rbt.values()].join(','), '0,1,2,3,4,5,6,7,8,9')
 
   function fromStart(start: Node<string, number>): string {
-    return [...rbt.nodes(start)].map(node => node.key).join(',')
+    return [...rbt._nodes(start)].map(node => node.key).join(',')
   }
   function fromStartToEnd(
     start: Node<string, number>, end: Node<string, number>,
   ): string {
-    return [...rbt.nodes(start, end)].map(node => node.key).join(',')
+    return [...rbt._nodes(start, end)].map(node => node.key).join(',')
   }
 
-  const node5 = rbt.findNode('5')
+  const node5 = rbt._findNode('5')
   equal(fromStart(node5), '5,6,7,8,9')
   equal(fromStartToEnd(node5, node5), '')
 
-  const node7 = rbt.findNode('7')
+  const node7 = rbt._findNode('7')
   equal(fromStart(node7), '7,8,9')
   equal(fromStartToEnd(node5, node7), '5,6')
   equal(fromStartToEnd(node7, node5), '')
 
-  const node9 = rbt.findNode('9')
+  const node9 = rbt._findNode('9')
   equal(fromStart(node9), '9')
   equal(fromStartToEnd(node7, node9), '7,8')
 
-  const nil = Node.nil
-  equal(fromStart(nil), '0,1,2,3,4,5,6,7,8,9')
-  equal(fromStartToEnd(nil, nil), '0,1,2,3,4,5,6,7,8,9')
-  equal(fromStartToEnd(node7, nil), '7,8,9')
-  equal(fromStartToEnd(nil, node7), '0,1,2,3,4,5,6')
+  equal(fromStart(Node.nil), '0,1,2,3,4,5,6,7,8,9')
+  equal(fromStartToEnd(Node.nil, Node.nil), '0,1,2,3,4,5,6,7,8,9')
+  equal(fromStartToEnd(node7, Node.nil), '7,8,9')
+  equal(fromStartToEnd(Node.nil, node7), '0,1,2,3,4,5,6')
 
-  isFalse(rbt._invariantViolated())
+  isFalse(invariantViolated(rbt))
 })
 
 
+// ----------------------------------------------------------------------------
 suite('alphabet insertion')
 
 
@@ -163,9 +176,9 @@ test('tree properties', () => {
     rbt.set(letter, code.toString())
 
     strictEqual(rbt.size, i, 'size' + message)
-    strictEqual(rbt.firstNode().key, 'a', 'first letter' + message)
-    strictEqual(rbt.lastNode().key, letter, 'last letter' + message)
-    isFalse(rbt._invariantViolated(), 'invariant violated' + message)
+    strictEqual(rbt._firstNode().key, 'a', 'first letter' + message)
+    strictEqual(rbt._lastNode().key, letter, 'last letter' + message)
+    isFalse(invariantViolated(rbt), 'invariant violated' + message)
     strictEqual([...rbt.keys()].join(''), letters, 'all letters' + message)
   }
 })
@@ -177,21 +190,26 @@ test('RBT invariants', () => {
     entries.push([String.fromCodePoint(c), '' + c])
 
   const rbt = new Tree<string, string>(entries)
-  const bad = rbt._invariantViolated()
-  isFalse(rbt._invariantViolated(), 'invariant violated')
+  isFalse(invariantViolated(rbt), 'invariant violated')
 })
 
 
+// ----------------------------------------------------------------------------
 suite('deletion')
 
 
 test('single', () => {
   const rbt = new Tree<string, string>({ a: 'alpha', b: 'beta', g: 'gamma' })
   strictEqual([...rbt.keys()].join(), 'a,b,g')
-  const node = rbt.findNode('b')
+  strictEqual(rbt._findNode('b').value, 'beta')
+  isTrue(rbt.delete('b'))
+  isNilNode(rbt._findNode('b'))
+  isFalse(rbt.delete('b'))
+  isFalse(invariantViolated(rbt), 'invariant violated')
 })
 
 
+// ----------------------------------------------------------------------------
 suite('concurrent modification')
 
 
@@ -202,9 +220,9 @@ test('tree properties', () => {
   equal([...rbt.keys()].join(','), '0,1,2,3,4')
   equal([...rbt.values()].join(','), '0,1,2,3,4')
 
-  let result
+  let result: IteratorResult<Node<string, number>>
 
-  const nodes = rbt.nodes()
+  const nodes = rbt._nodes()
   result = nodes.next()
   isFalse(result.done)
   strictEqual(result.value.key, '0')
@@ -217,65 +235,103 @@ test('tree properties', () => {
   result = nodes.next()
   isFalse(result.done)
   strictEqual(result.value.key, '1')
-
 })
 
 
+// ----------------------------------------------------------------------------
 suite('fuzzy')
 
 
 // https://stackoverflow.com/a/47593316
+const M = 1597334677
+const N = 2 ** 32
+
 // tslint:disable-next-line: no-bitwise
-const lcg = (s: number) => () => ((s = Math.imul(1597334677, s)) >>> 0)
-const rand = lcg(42) // constant seed for repeatability
-function randString() {
+const lcg = (s: number) => (max = 1) => ((s = Math.imul(M, s)) >>> 0) / (N / max)
+
+let rand: (max?: number) => number
+
+// tslint:disable-next-line: no-bitwise
+const irand = (max: number) => rand(max) | 0
+
+function randString(n: number) {
   let s = ''
-  for (let i = 0; i < 20; i++) {
-    // tslint:disable-next-line: no-bitwise
-    s += String.fromCodePoint(97 + (rand() >>> 8) % 26)
+  for (let i = 0; i < n; i++) {
+    s += String.fromCodePoint(97 + irand(26))
   }
   return s
 }
 
 
 test('insert RBT invariants', () => {
+  rand = lcg(42)
   const rbt = new Tree<string, null>()
   for (let i = 1; i <= 100000; i++) {
-    const key = randString()
+    const key = randString(10)
     const message = ` after set('${key}', null)`
 
     rbt.set(key, null)
     strictEqual(rbt.size, i, 'size' + message)
     if (0 === i % 10000)
-      isFalse(rbt._invariantViolated(), 'invariant violated' + message)
+      isFalse(invariantViolated(rbt), 'invariant violated' + message)
   }
-}).timeout(20000)
+})
 
 
-test('insert and delete RBT invariants', () => {
-  const rbt = new Tree<string, null>()
-  let size = 0
-  for (let i = 1; i <= 1000; i++) {
-    const key = randString()
-    const message = ` after set('${key}', null)`
+test('mixed insert-delete RBT invariants', () => {
+  rand = lcg(42)
+  let message
+  const rbt = new Tree<number, null>(), n = 10000
+  try {
+    for (let i = 0; i < n / 2; i++)
+      rbt.set(irand(n), null)
 
-    rbt.set(key, null)
-    size++
-    strictEqual(rbt.size, size, 'size' + message)
+    isFalse(invariantViolated(rbt), 'invariant violated' + message)
 
-    if (rand() < 0.1 * 2 ** 32 ) {
-      // count is a number from 1 to i / 3, higher numbers rarer
-      const count = Math.ceil(Math.sqrt(rand() % (i * i / 9)))
-      let node = rbt.findNode(key)
-      for (let j = 1; j < count && node !== Node.nil; j++) {
-        const next = rbt.prevNode(node)
-        rbt.deleteNode(node)
-        node = next
-        size--
+    for (let i = 0; i < n; i++) {
+      message = ` iteration ${i} size ${rbt.size}`
+      if (rand() < 0.5) {
+        const key = irand(n)
+        rbt.set(key, null)
       }
-    }
+      else if (rbt.size > 0) {
+        const m: number = irand(rbt.size)
+        let node = rbt._firstNode()
+        for (let j = 0; j < m; j++) node = rbt._nextNode(node)
+        rbt._deleteNode(node)
+      }
 
-    if (0 === i % 1)
-      isFalse(rbt._invariantViolated(), 'invariant violated' + message)
+      if (0 === i % 10)
+        isFalse(invariantViolated(rbt), 'invariant violated' + message)
+    }
   }
-}).timeout(20000)
+  catch (err) {
+    err.message += message
+    throw err
+  }
+})
+
+
+test('batch insert and delete RBT invariants', () => {
+  // tslint:disable-next-line: no-shadowed-variable
+  const dbg = debug('rbts:test-batch-invariant')
+  rand = lcg(42)
+  const rbt = new Tree<string, null>()
+
+  for (let i = 0; i < 10000; i++)
+    rbt.set(randString(5), null)
+
+  let count = 0
+  for (let i = 0; i < 100; i++) {
+    for (const key of rbt.keys())
+      if (rand() < 0.02 && count < 100)
+        rbt.delete(key), count++
+    dbg('deleted', count, 'size', rbt.size)
+
+    for (let j = 0; j < count; j++)
+      rbt.set(randString(5), null)
+    dbg('size', rbt.size)
+
+    isFalse(invariantViolated(rbt))
+  }
+})
