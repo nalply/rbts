@@ -2,10 +2,10 @@ language: node_js
 node_js:
  - "node"
 script:
-  - npm build
-  - npm lint
-  - npm test
-  - npm cover 
+  - npm run build
+  - npm run lint
+  - npm run test
+  - npm run cover 
 scripts:
   - npm install codecov -g
 after_success:
