@@ -1,3 +1,7 @@
 dist
+doc
 node_modules
 experiments.ts
+coverage
+.nyc_output
+git

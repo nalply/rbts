@@ -1,5 +1,7 @@
 ![Red Black Tree SVG](https://upload.wikimedia.org/wikipedia/commons/1/10/Red-black_tree_example_nN.svg)
 
+[![npm version](https://badge.fury.io/js/rbts.svg)](https://badge.fury.io/js/rbts)
+[![Dependencies](https://david-dm.org/nalply/rbts.svg)](https://david-dm.org/nalply/rbts)
 [![Build Status](https://travis-ci.com/nalply/rbts.svg?branch=master)](https://travis-ci.com/nalply/rbts)
 
 ---
