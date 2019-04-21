@@ -36,6 +36,7 @@ test('tree properties', () => {
   const rbt = new Tree
 
   strictEqual(rbt.size, 0)
+  strictEqual(rbt.toString(), '[Tree size: 0]')
   isNilNode(rbt._root)
   strictEqual(rbt._root.key as any, Node.nil.key)
   strictEqual(rbt._root.value as any, Node.nil.value)
@@ -49,6 +50,14 @@ test('tree properties', () => {
   isUndefined(rbt.get('whatever'))
   isNilNode(rbt._findNode('whatever'))
   isFalse(rbt.has('whatever'))
+
+  for (const entry of rbt) {
+    fail('empty tree should not deliver entries')
+  }
+  rbt.forEach(() => fail('empty tree should not invoke this'))
+
+  rbt.clear()
+  strictEqual(rbt.size, 0)
 })
 
 
@@ -69,6 +78,7 @@ test('tree properties', () => {
   isOkNode(rbt._findNode('a'))
   isFalse(rbt.has('whatever'))
   strictEqual(rbt.size, 1)
+  strictEqual(rbt.toString(), '[Tree size: 1]')
   strictEqual(rbt._firstNode().key, 'a')
   strictEqual(rbt._firstNode().value, 'alpha')
   deepEqual(rbt._root.entry(), [ 'a', 'alpha' ])
@@ -82,6 +92,31 @@ test('tree properties', () => {
   isNilNode(rbt._root.left)
   isNilNode(rbt._root.right)
   isTrue(rbt._root.black)
+  isTrue(rbt._root._black)
+  isFalse(rbt._root.red)
+  isFalse(rbt._root._red)
+  strictEqual(rbt._root.toString(), '[a:alpha]')
+  strictEqual(rbt._root.toString(true), '(· a:alpha ·)')
+  strictEqual(rbt._root._dump(), '(a)')
+
+  let done = false
+  for (const entry of rbt) {
+    isFalse(done)
+    strictEqual(entry[0], 'a')
+    strictEqual(entry[1], 'alpha')
+    done = true
+  }
+  done = false
+  rbt.forEach((value, key, target) => {
+    isFalse(done)
+    strictEqual(key, 'a')
+    strictEqual(value, 'alpha')
+    strictEqual(target, rbt)
+    done = true
+  })
+
+  rbt.clear()
+  strictEqual(rbt.size, 0)
 })
 
 

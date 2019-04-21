@@ -69,8 +69,9 @@ export class Tree<K = string, V = any>implements Map<K, V> {
     this._size = 0
   }
 
-  forEach(f: (value: V, key: K, map: Map<K, V>) => void, self: any): void {
-    for (const key of this.keys()) f.call(f, self, key, this)
+  forEach(f: (value: V, key: K, map: Map<K, V>) => void, self?: any): void {
+    for (const entry of this.entries())
+      f.call(self, entry[1], entry[0], this)
   }
 
   [Symbol.iterator](): IterableIterator<[K, V]> {
