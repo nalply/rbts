@@ -16,7 +16,10 @@
 
 import { nil, Node, ok } from './node'
 
-
+/** A red black tree written in TypeScript. It can be used instead of
+ * {Map}, where the entries are sorted by a comparison function passed in
+ * by the constructor.
+ */
 export class Tree<K = string, V = any>implements Map<K, V> {
   /** @internal */ _root: Node<K, V> = Node.nil
   /** @internal */ _size: number = 0

@@ -1,5 +1,5 @@
 {
-  "exclude": [ "test.ts", "dist" ],
+  "exclude": [ "dist" ],
   "compilerOptions": {
     "target": "es2018",
     "module": "commonjs",
