@@ -1,24 +1,21 @@
 // Overview about the type variables, classes and interfaces
 // ----------------------------------------------------------------------------
-// K            key type
-// V            value type
-// R            iterator result value type, for example [K, V] for entries()
-// N            tree node type, typically N extends Node<K, V>
-// T            tree type, typically T extends IterTree<N>
-// LessOp<K>    function of a and b to return true if a < b
-// Tree<K, V>   red-black tree implementing Map and TreeEx<N>
-// Node<K, V>   red-black node with pointers to parent, left and right
-// IterTree<N>  provide Tree.nextNode() and Tree.firstNode() for iterators
+// K                   key type
+// V                   value type
+// R                   iterator result value type, e.g. [K, V] for entries()
+// N                   tree node type, typically N extends Node<K, V>
+// T                   tree type, typically T extends IterTree<N>
+// Assignable<K, V>    entry iterator or array to assign entries to tree
+// LessOp<K>           function of a and b to return true if a < b
+// Tree<K, V>          red-black tree implementing Map
+// IterTree<N>         neccessary tree properties for iterators
 // Iter<K, V, R, N, T> iterator implementing IterableIterator<R>
 // ----------------------------------------------------------------------------
 // Convention: Names starting with _ aren't public. You are on your own if you
-// use them. They are excluded from *.d.ts files by @internal anyway.
+// use them. They are excluded from *.d.ts files by anyway.
 
-// Which types can be assigned to a Tree? Objects only if K is string.
-export type Assignable<K, V> = Iterator<[K, V]> | Array<[K, V]>
-  | (K extends string ? Record<K, V> : never)
+import { nil, Node, ok } from './node'
 
-export type LessOp<K> = (a: K, b: K) => boolean
 
 export class Tree<K = string, V = any>implements Map<K, V> {
   /** @internal */ _root: Node<K, V> = Node.nil
@@ -392,110 +389,17 @@ export class Tree<K = string, V = any>implements Map<K, V> {
   }
 }
 
+
+export type Assignable<K, V> = Iterator<[K, V]> | Array<[K, V]>
+  | (K extends string ? Record<K, V> : never)
+
+export type LessOp<K> = (a: K, b: K) => boolean
+
+
 function isIterable(obj: any): obj is Iterable<unknown> {
   return obj && typeof obj[Symbol.iterator] === 'function'
 }
 
-interface NodeWalk { parent: NodeWalk }
-
-export class Node<K, V> {
-  /** @internal */ _key: K
-  /** @internal */ _value: V          // Node.nil is Readonly<Node<K, V>>
-  /** @internal */ _parent: Node<K, V> = Node.nil as Node<K, V>
-  /** @internal */ _left: Node<K, V> = Node.nil as Node<K, V>
-  /** @internal */ _right: Node<K, V> = Node.nil as Node<K, V>
-  /** @internal */ _black: boolean = true
-
-  /** @internal */ get _red() { return !this._black }
-  /** @internal */ set _red(value: boolean) { this._black = !value }
-
-  constructor(key: K, value: V) {
-    this._key = key
-    this._value = value
-  }
-
-  get key(): K { return this._key }
-  get value(): V { return this._value }
-  set value(value: V) { this._value = value }
-  get left(): Node<K, V> { return this._left }
-  get right(): Node<K, V> { return this._right }
-  get parent(): Node<K, V> { return this._parent }
-  get black(): boolean { return this._black }
-  get red(): boolean { return !this._black }
-
-  static readonly nil = nilNode()
-
-  /** @internal */ _dump(check: Set<Node<K, V>> = new Set): string {
-    if (nil(this)) return '·'
-
-    const key = this.key.toString().substr(0, 10)
-    const o = this.black ? '(' : '<'
-    const c = this.black ? ')' : '>'
-    if (check.has(this)) return '@' + o + this.key + c
-    check.add(this)
-    const left = nil(this.left) ? '' : this.left._dump(check)
-    const right = nil(this.right) ? '' : this.right._dump(check)
-
-    return o + left + key + right + c
-  }
-
-  // Node depth (0 if nil and Infinity if there was a cycle), not efficient
-  /** @internal */ static _depth(node: NodeWalk): number {
-    const walked = new Set<NodeWalk>()
-    let depth = 0
-    while (ok(node)) {
-      if (walked.has(node)) return Infinity // cycle detected
-      walked.add(node)
-      depth++
-      node = node.parent
-    }
-    return depth
-  }
-
-  entry(): [K, V] { return [ this.key, this.value ] }
-
-  toString(detail = false): string {
-    const o = detail ? this.black ? '(' : '<' : '['
-    const c = detail ? this.black ? ')' : '>' : ']'
-    const key = ('' + this.key).substr(0, 20)
-    const value = ('' + this.value).substr(0, 20)
-    const left = detail ? (nil(this.left) ? '·' : this.left.key) + ' ' : ''
-    const right = detail ? ' ' + (nil(this.right) ? '·' : this.right.key) : ''
-    return `${o}${left}${key}:${value}${right}${c}`
-  }
-}
-
-class NilNode extends Node<any, any> {}
-
-// Node.nil is unmodifiable but ignores changing color
-function nilNode(): NilNode {
-  if (nilNode.already) throw new TypeError('nilNode() already invoked')
-  nilNode.already = true
-  return Object.freeze(
-    new class extends Node<any, any> {
-      toString() { return '·' }
-      get _black() { return true }
-      set _black(value: boolean) {}
-
-      constructor() {
-        super(Symbol('rbts.Node.nil.key'), Symbol('rbts.Node.nil.value'))
-        this._parent = this._left = this._right = this
-      }
-    },
-  )
-}
-nilNode.already = false
-
-
-type NilCheckParameter = Node<unknown, unknown> | NodeWalk
-
-function nil(node: NilCheckParameter): boolean {
-  return node === Node.nil
-}
-
-function ok(node: NilCheckParameter): boolean {
-  return node !== Node.nil
-}
 
 type Less<K, N> = (key: K, node: N) => boolean
 

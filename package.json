@@ -1,6 +1,6 @@
 {
   "name": "rbts",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Typescript Red-Black Tree",
   "main": "dist/redblack.js",
   "types": "dist/redblack.d.ts",
@@ -39,6 +39,7 @@
   "mocha": {
     "require": "ts-node/register",
     "ui": "qunit",
-    "spec": "test.ts"
+    "spec": "test.ts",
+    "timeout": "10s"
   }
 }

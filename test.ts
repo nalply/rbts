@@ -1,6 +1,7 @@
 import * as chai from 'chai'
 import { debug } from 'debug'
-import { Node, Tree } from './redblack'
+import { nil, Node, ok } from './node'
+import { Tree } from './tree'
 
 const {
   equal, strictEqual, deepEqual,
@@ -152,11 +153,10 @@ test('start-end', () => {
   equal(fromStart(node9), '9')
   equal(fromStartToEnd(node7, node9), '7,8')
 
-  const nil = Node.nil
-  equal(fromStart(nil), '0,1,2,3,4,5,6,7,8,9')
-  equal(fromStartToEnd(nil, nil), '0,1,2,3,4,5,6,7,8,9')
-  equal(fromStartToEnd(node7, nil), '7,8,9')
-  equal(fromStartToEnd(nil, node7), '0,1,2,3,4,5,6')
+  equal(fromStart(Node.nil), '0,1,2,3,4,5,6,7,8,9')
+  equal(fromStartToEnd(Node.nil, Node.nil), '0,1,2,3,4,5,6,7,8,9')
+  equal(fromStartToEnd(node7, Node.nil), '7,8,9')
+  equal(fromStartToEnd(Node.nil, node7), '0,1,2,3,4,5,6')
 
   isFalse(invariantViolated(rbt))
 })
@@ -275,7 +275,7 @@ test('insert RBT invariants', () => {
     if (0 === i % 10000)
       isFalse(invariantViolated(rbt), 'invariant violated' + message)
   }
-}).timeout(20000)
+})
 
 
 test('mixed insert-delete RBT invariants', () => {
