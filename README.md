@@ -16,7 +16,7 @@ This implementation has the same interface as JavaScript's built-in type
 sorted according to the `lessOp` parameter in the constructor.
 
 Currently no guarantees of efficiency are given. I suspect, for example,
-that the `less` parameter is not good for performance.
+that the `lessOp` parameter is not good for performance.
 
 ## Example
 

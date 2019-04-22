@@ -333,66 +333,7 @@ export class Tree<K = string, V = any>implements Map<K, V> {
     node._parent = child
     child._right = node
   }
-
-  // return false or description of violated invariant, not efficient
-  /** @internal */ _invariantViolated(): string | false {
-    const walked = new Set<Node<K, V>>()
-    let maxDepth = 0, minDepth = Infinity
-
-    // in order traversal
-    let node = this._firstNode()
-    while (ok(node)) {
-      const depth = Node._depth(node) // see comment below at walkup!
-      if (nil(node.left) || nil(node.right)) {
-        if (depth > maxDepth) maxDepth = depth
-        if (depth < minDepth) minDepth = depth
-      }
-
-      const p = node.parent, r = node.right, l = node.left
-      const key = node.key.toString().substr(0, 20)
-      const s = ` (at key ${key}, depth ${depth})`
-      const notChild = 'not parent\'s child' + s
-      if (depth < 0 || walked.has(node)) return `cycle` + s
-      if (node.red) {
-        if (l.red) return 'left of red not black' + s
-        if (r.red) return 'right of red not black' + s
-      }
-      if (ok(p) && node !== p.left && node !== p.right) return notChild
-      if (ok(r) && node !== r.parent) return 'not left\'s child' + s
-      if (ok (l) && node !== l.parent) return 'not right\'s child' + s
-      if (ok(r) && this._less(r.key, node)) return 'right is greater' + s
-      if (ok(l) && this._less(node.key, l)) return 'left is smaller' + s
-
-      // Check whether the number of black nodes in all paths is same
-      let blackDepth = null
-      if (nil(node.left) && nil(node.right)) {
-        let walkup = node, blackDepth2 = +node.black
-        // we already walked up in Node._depth(), no need to check for cycles
-        while (ok(walkup = walkup.parent)) blackDepth2 += +node.black
-
-        const bad = `black depth ${blackDepth2}, expected ${blackDepth}` + s
-        if (null === blackDepth) blackDepth = blackDepth2
-        else if (blackDepth !== blackDepth2) return bad
-      }
-
-      walked.add(node)
-      node = this._nextNode(node)
-    }
-
-    if (this.size > 3) {
-      const sqrtSize = Math.sqrt(this.size)
-      const diffDepth = maxDepth - minDepth
-      const message = `unbalanced tree of size ${this.size}: `
-        + `diffDepth ${diffDepth} > sqrtSize ${sqrtSize.toPrecision(4)}`
-
-      if (diffDepth > +sqrtSize) return message
-    }
-
-    // no violated invariants have been found
-    return false
-  }
 }
-
 
 export type Assignable<K, V> = Iterator<[K, V]> | Array<[K, V]>
   | (K extends string ? Record<K, V> : never)

@@ -5,21 +5,67 @@ import { Tree } from './tree'
 
 const {
   equal, strictEqual, deepEqual,
-  isFalse, isTrue, isUndefined, isNotNull,
+  isFalse, isTrue, isUndefined,
   fail,
 } = chai.assert
 
-const isNilNode = (value: any) =>
-  chai.assert(value === Node.nil, 'not a nil Node')
-const isOkNode = (value: any) =>
-  chai.assert(value.constructor !== Node || value !== Node.nil,
-    'not an ok Node')
 
-const dbg = debug('rbts:test')
-function invariantViolated(tree: Tree<any, any>) {
-  const result = tree._invariantViolated()
-  if (result) debug('rbts:invariant-violated')('invariant violated: ' + result)
-  return result
+ // return false or description of violated invariant, not efficient
+function invariantViolated(tree: Tree<any, any>): string | false {
+  const walked = new Set<Node<any, any>>()
+  let maxDepth = 0, minDepth = Infinity
+
+  // in order traversal
+  let node = tree._firstNode()
+  while (ok(node)) {
+    const depth = Node._depth(node) // see comment below at walkup!
+    if (nil(node.left) || nil(node.right)) {
+      if (depth > maxDepth) maxDepth = depth
+      if (depth < minDepth) minDepth = depth
+    }
+
+    const p = node.parent, r = node.right, l = node.left
+    const key = node.key.toString().substr(0, 20)
+    const s = ` (at key ${key}, depth ${depth})`
+    const notChild = 'not parent\'s child' + s
+    if (depth < 0 || walked.has(node)) return `cycle` + s
+    if (node.red) {
+      if (l.red) return 'left of red not black' + s
+      if (r.red) return 'right of red not black' + s
+    }
+    if (ok(p) && node !== p.left && node !== p.right) return notChild
+    if (ok(r) && node !== r.parent) return 'not left\'s child' + s
+    if (ok (l) && node !== l.parent) return 'not right\'s child' + s
+    if (ok(r) && tree._less(r.key, node)) return 'right is greater' + s
+    if (ok(l) && tree._less(node.key, l)) return 'left is smaller' + s
+
+    // Check whether the number of black nodes in all paths is same
+    let blackDepth = null
+    if (nil(node.left) && nil(node.right)) {
+      let walkup = node, blackDepth2 = +node.black
+      // we already walked up in Node._depth(), no need to check for cycles
+      while (ok(walkup = walkup.parent)) blackDepth2 += +node.black
+
+      const bad = `black depth ${blackDepth2}, expected ${blackDepth}` + s
+      if (null === blackDepth) blackDepth = blackDepth2
+      else if (blackDepth !== blackDepth2) return bad
+    }
+
+    walked.add(node)
+    node = tree._nextNode(node)
+  }
+
+  if (tree.size > 3) {
+    const sqrtSize = Math.sqrt(tree.size)
+    const diffDepth = maxDepth - minDepth
+    const message = `unbalanced tree of size ${tree.size}: `
+      + `diffDepth ${diffDepth} > sqrtSize ${sqrtSize.toPrecision(4)}`
+
+    if (diffDepth > +sqrtSize) return message
+  }
+
+  // no violated invariants have been found
+  return false
 }
 
 
@@ -37,18 +83,18 @@ test('tree properties', () => {
 
   strictEqual(rbt.size, 0)
   strictEqual(rbt.toString(), '[Tree size: 0]')
-  isNilNode(rbt._root)
+  isTrue(nil(rbt._root))
   strictEqual(rbt._root.key as any, Node.nil.key)
   strictEqual(rbt._root.value as any, Node.nil.value)
   isTrue(rbt._root.black)
-  isNilNode(rbt._root.parent)
-  isNilNode(rbt._root.left)
-  isNilNode(rbt._root.right)
+  isTrue(nil(rbt._root.parent))
+  isTrue(nil(rbt._root.left))
+  isTrue(nil(rbt._root.right))
 
-  isNilNode(rbt._firstNode())
-  isNilNode(rbt._lastNode())
+  isTrue(nil(rbt._firstNode()))
+  isTrue(nil(rbt._lastNode()))
   isUndefined(rbt.get('whatever'))
-  isNilNode(rbt._findNode('whatever'))
+  isTrue(nil(rbt._findNode('whatever')))
   isFalse(rbt.has('whatever'))
 
   for (const entry of rbt) {
@@ -74,8 +120,8 @@ test('tree properties', () => {
   const rbt = new Tree<string, string>({a: 'alpha'})
 
   isUndefined(rbt.get('whatever'))
-  isNilNode(rbt._findNode('whatever'))
-  isOkNode(rbt._findNode('a'))
+  isTrue(nil(rbt._findNode('whatever')))
+  isTrue(ok(rbt._findNode('a')))
   isFalse(rbt.has('whatever'))
   strictEqual(rbt.size, 1)
   strictEqual(rbt.toString(), '[Tree size: 1]')
@@ -87,10 +133,10 @@ test('tree properties', () => {
   strictEqual(rbt.get('a'), 'alpha')
   strictEqual(rbt._findNode('a'), rbt._root)
   isTrue(rbt.has('a'))
-  isNilNode(rbt._nextNode(rbt._root))
-  isNilNode(rbt._root.parent)
-  isNilNode(rbt._root.left)
-  isNilNode(rbt._root.right)
+  isTrue(nil(rbt._nextNode(rbt._root)))
+  isTrue(nil(rbt._root.parent))
+  isTrue(nil(rbt._root.left))
+  isTrue(nil(rbt._root.right))
   isTrue(rbt._root.black)
   isTrue(rbt._root._black)
   isFalse(rbt._root.red)
@@ -128,9 +174,9 @@ test('tree properties', () => {
   const rbt = new Tree<string, string>({a: 'alpha'})
   rbt._deleteNode(rbt._root)
   strictEqual(rbt.size, 0)
-  isNilNode(rbt._root)
-  isNilNode(rbt._firstNode())
-  isNilNode(rbt._lastNode())
+  isTrue(nil(rbt._root))
+  isTrue(nil(rbt._firstNode()))
+  isTrue(nil(rbt._lastNode()))
 })
 
 
@@ -238,7 +284,7 @@ test('single', () => {
   strictEqual([...rbt.keys()].join(), 'a,b,g')
   strictEqual(rbt._findNode('b').value, 'beta')
   isTrue(rbt.delete('b'))
-  isNilNode(rbt._findNode('b'))
+  isTrue(nil(rbt._findNode('b')))
   isFalse(rbt.delete('b'))
   isFalse(invariantViolated(rbt), 'invariant violated')
 })
