@@ -1,0 +1,415 @@
+Statistical profiling result from isolate-0x104800000-v8.log, (4096 ticks, 16 unaccounted, 0 excluded).
+
+ [Shared libraries]:
+   ticks  total  nonlib   name
+      7    0.2%          /usr/lib/system/libsystem_malloc.dylib
+      3    0.1%          /usr/lib/system/libsystem_pthread.dylib
+      1    0.0%          /usr/lib/system/libsystem_c.dylib
+
+ [JavaScript]:
+   ticks  total  nonlib   name
+   1314   32.1%   32.2%  LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+    288    7.0%    7.1%  LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+    239    5.8%    5.9%  Builtin: StringLessThan
+    157    3.8%    3.8%  Builtin: CEntry_Return1_DontSaveFPRegs_ArgvOnStack_NoBuiltinExit
+     95    2.3%    2.3%  Builtin: StringEqual
+     54    1.3%    1.3%  Builtin: StringAdd_CheckNone_NotTenured
+      7    0.2%    0.2%  LazyCompile: *set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      7    0.2%    0.2%  Builtin: RecordWrite
+      4    0.1%    0.1%  LazyCompile: *_rightRotate /Users/nalp/Projects/rbts/dist/tree.js:299:34
+      3    0.1%    0.1%  LazyCompile: ~_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+      3    0.1%    0.1%  LazyCompile: *_leftRotate /Users/nalp/Projects/rbts/dist/tree.js:284:33
+      3    0.1%    0.1%  LazyCompile: *_findNode /Users/nalp/Projects/rbts/dist/tree.js:115:31
+      2    0.0%    0.0%  Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      2    0.0%    0.0%  Builtin: StoreIC
+      1    0.0%    0.0%  LazyCompile: ~resolve path.js:970:10
+      1    0.0%    0.0%  LazyCompile: ~_leftRotate /Users/nalp/Projects/rbts/dist/tree.js:284:33
+      1    0.0%    0.0%  LazyCompile: ~Node /Users/nalp/Projects/rbts/dist/node.js:4:16
+      1    0.0%    0.0%  LazyCompile: ~NativeModule internal/bootstrap/loaders.js:152:22
+      1    0.0%    0.0%  Builtin: InterpreterEntryTrampoline
+      1    0.0%    0.0%  Builtin: FastNewClosure
+      1    0.0%    0.0%  Builtin: Call_ReceiverIsAny
+      1    0.0%    0.0%  Builtin: CallFunction_ReceiverIsAny
+
+ [C++]:
+   ticks  total  nonlib   name
+    345    8.4%    8.4%  T int v8::internal::FastAsciiConvert<false>(char*, char const*, int, bool*)
+    267    6.5%    6.5%  T v8::internal::Factory::NewRawOneByteString(int, v8::internal::PretenureFlag)
+    197    4.8%    4.8%  T v8::internal::ConvertToUpper(v8::internal::Handle<v8::internal::String>, v8::internal::Isolate*)
+    195    4.8%    4.8%  t v8::internal::Heap::AllocateRaw(int, v8::internal::AllocationSpace, v8::internal::AllocationAlignment)
+    149    3.6%    3.6%  T v8::internal::Runtime_StringToUpperCaseIntl(int, v8::internal::Object**, v8::internal::Isolate*)
+     99    2.4%    2.4%  T v8::internal::String::GetFlatContent()
+     87    2.1%    2.1%  t v8::internal::String::Flatten(v8::internal::Isolate*, v8::internal::Handle<v8::internal::String>, v8::internal::PretenureFlag)
+     70    1.7%    1.7%  T v8::internal::Heap::AllocateRawWithRetryOrFail(int, v8::internal::AllocationSpace, v8::internal::AllocationAlignment)
+     63    1.5%    1.5%  T v8::internal::Heap::AllocateRawWithLightRetry(int, v8::internal::AllocationSpace, v8::internal::AllocationAlignment)
+     45    1.1%    1.1%  T v8::internal::IncrementalMarking::Step(unsigned long, v8::internal::IncrementalMarking::CompletionAction, v8::internal::StepOrigin, v8::internal::WorklistToProcess)
+     43    1.0%    1.1%  T _mach_vm_purgable_control
+     38    0.9%    0.9%  T _vm_purgable_control
+     31    0.8%    0.8%  t v8::internal::Scavenger::ScavengeObject(v8::internal::HeapObjectReference**, v8::internal::HeapObject*)
+     27    0.7%    0.7%  T node::native_module::NativeModuleLoader::CompileFunction(v8::FunctionCallbackInfo<v8::Value> const&)
+     26    0.6%    0.6%  t void v8::internal::BodyDescriptorBase::IteratePointers<v8::internal::MarkingVisitor<(v8::internal::FixedArrayVisitationMode)1, (v8::internal::TraceRetainingPathMode)1, v8::internal::IncrementalMarkingState> >(v8::internal::HeapObject*, int, int, v8::internal::MarkingVisitor<(v8::internal::FixedArrayVisitationMode)1, (v8::internal::TraceRetainingPathMode)1, v8::internal::IncrementalMarkingState>*)
+     14    0.3%    0.3%  T ___guarded_open_np
+     12    0.3%    0.3%  T v8::internal::Scavenger::ScavengePage(v8::internal::MemoryChunk*)
+      8    0.2%    0.2%  t _szone_malloc_should_clear
+      8    0.2%    0.2%  T _vm_read
+      7    0.2%    0.2%  t v8::internal::Worklist<v8::internal::HeapObject*, 64>::Pop(int, v8::internal::HeapObject**)
+      7    0.2%    0.2%  t node::fs::Read(v8::FunctionCallbackInfo<v8::Value> const&)
+      7    0.2%    0.2%  T _mach_vm_protect
+      6    0.1%    0.1%  t v8::internal::HeapObject::SizeFromMap(v8::internal::Map*) const
+      6    0.1%    0.1%  T v8::internal::Scavenger::Process(v8::internal::OneshotBarrier*)
+      5    0.1%    0.1%  t v8::internal::SlotSet::IsEmptyBucket(unsigned int*)
+      5    0.1%    0.1%  T v8::internal::Bitmap::Clear()
+      4    0.1%    0.1%  t void v8::internal::SlotSet::Insert<(v8::internal::AccessMode)0>(int)
+      4    0.1%    0.1%  t node::fs::InternalModuleReadJSON(v8::FunctionCallbackInfo<v8::Value> const&)
+      4    0.1%    0.1%  T v8::internal::Heap::Scavenge()
+      4    0.1%    0.1%  T node::contextify::ContextifyContext::CompileFunction(v8::FunctionCallbackInfo<v8::Value> const&)
+      3    0.1%    0.1%  t _insert_node
+      3    0.1%    0.1%  T node::TTYWrap::New(v8::FunctionCallbackInfo<v8::Value> const&)
+      2    0.0%    0.0%  t v8::internal::LocalAllocator::AllocateInLAB(int, v8::internal::AllocationAlignment)
+      2    0.0%    0.0%  t v8::internal::IterateAndScavengePromotedObjectsVisitor::HandleSlot(v8::internal::HeapObject*, unsigned long, v8::internal::HeapObject*)
+      2    0.0%    0.0%  T v8::internal::Scanner::Scan()
+      2    0.0%    0.0%  T v8::internal::ConcurrentMarking::ClearLiveness(v8::internal::MemoryChunk*)
+      2    0.0%    0.0%  T node::binding::GetInternalBinding(v8::FunctionCallbackInfo<v8::Value> const&)
+      2    0.0%    0.0%  T node::NodePlatform::MonotonicallyIncreasingTime()
+      2    0.0%    0.0%  T __kernelrpc_vm_remap
+      1    0.0%    0.0%  t void v8::internal::Page::ForAllFreeListCategories<v8::internal::PagedSpace::UnlinkFreeListCategories(v8::internal::Page*)::'lambda'(v8::internal::FreeListCategory*)>(v8::internal::PagedSpace::UnlinkFreeListCategories(v8::internal::Page*)::'lambda'(v8::internal::FreeListCategory*))
+      1    0.0%    0.0%  t void std::__1::vector<v8::internal::compiler::PropertyAccessInfo, v8::internal::ZoneAllocator<v8::internal::compiler::PropertyAccessInfo> >::__push_back_slow_path<v8::internal::compiler::PropertyAccessInfo const&>(v8::internal::compiler::PropertyAccessInfo const&&&)
+      1    0.0%    0.0%  t v8::internal::compiler::LoopFinderImpl::PropagateForward()
+      1    0.0%    0.0%  t v8::internal::compiler::CFGBuilder::BuildBlocks(v8::internal::compiler::Node*)
+      1    0.0%    0.0%  t v8::internal::Worklist<std::__1::pair<v8::internal::HeapObject*, int>, 256>::Pop(int, std::__1::pair<v8::internal::HeapObject*, int>*)
+      1    0.0%    0.0%  t v8::internal::ScavengingTask::RunInParallel()
+      1    0.0%    0.0%  t v8::internal::ParserBase<v8::internal::Parser>::ParseStatementListItem(bool*)
+      1    0.0%    0.0%  t v8::internal::ParserBase<v8::internal::Parser>::ParseFunctionBody(v8::internal::ZoneList<v8::internal::Statement*>*, v8::internal::AstRawString const*, int, v8::internal::ParserFormalParameters const&, v8::internal::FunctionKind, v8::internal::FunctionLiteral::FunctionType, bool*)
+      1    0.0%    0.0%  t v8::internal::ParserBase<v8::internal::Parser>::ParseArguments(v8::internal::Scanner::Location*, bool, bool*, bool*)
+      1    0.0%    0.0%  t v8::internal::PagedSpace::Available()
+      1    0.0%    0.0%  t v8::internal::IdleScavengeObserver::Step(int, unsigned long, unsigned long)
+      1    0.0%    0.0%  t v8::internal::CompactionSpace::is_local()
+      1    0.0%    0.0%  t v8::internal::AstNodeFactory::NewAssignment(v8::internal::Token::Value, v8::internal::Expression*, v8::internal::Expression*, int)
+      1    0.0%    0.0%  t v8::internal::(anonymous namespace)::FinalizeUnoptimizedCompilationJob(v8::internal::UnoptimizedCompilationJob*, v8::internal::Handle<v8::internal::SharedFunctionInfo>, v8::internal::Isolate*)
+      1    0.0%    0.0%  t v8::base::TemplateHashMapImpl<void*, void*, v8::base::HashEqualityThenKeyMatcher<void*, bool (*)(void*, void*)>, v8::base::DefaultAllocationPolicy>::Resize(v8::base::DefaultAllocationPolicy)
+      1    0.0%    0.0%  t unsigned int v8::internal::StringHasher::HashSequentialString<unsigned char>(unsigned char const*, int, unsigned long long)
+      1    0.0%    0.0%  t std::__1::vector<std::__1::locale::facet*, std::__1::__sso_allocator<std::__1::locale::facet*, 28ul> >::deallocate()
+      1    0.0%    0.0%  t std::__1::deque<v8::internal::Page*, std::__1::allocator<v8::internal::Page*> >::__move_assign(std::__1::deque<v8::internal::Page*, std::__1::allocator<v8::internal::Page*> >&, std::__1::integral_constant<bool, true>)
+      1    0.0%    0.0%  t std::__1::basic_ostream<char, std::__1::char_traits<char> >::operator<<(long long)
+      1    0.0%    0.0%  t node::fs::Open(v8::FunctionCallbackInfo<v8::Value> const&)
+      1    0.0%    0.0%  t node::Cwd(v8::FunctionCallbackInfo<v8::Value> const&)
+      1    0.0%    0.0%  t _uv__hrtime
+      1    0.0%    0.0%  t _malloc_zone_register_while_locked
+      1    0.0%    0.0%  t __read_images
+      1    0.0%    0.0%  t ___vfprintf
+      1    0.0%    0.0%  T void v8::internal::EvacuateVisitorBase::RawMigrateObject<(v8::internal::EvacuateVisitorBase::MigrationMode)1>(v8::internal::EvacuateVisitorBase*, v8::internal::HeapObject*, v8::internal::HeapObject*, int, v8::internal::AllocationSpace)
+      1    0.0%    0.0%  T v8::internal::interpreter::ConstantArrayBuilder::Insert(v8::internal::AstRawString const*)
+      1    0.0%    0.0%  T v8::internal::interpreter::BytecodeRegisterOptimizer::RegisterTransfer(v8::internal::interpreter::BytecodeRegisterOptimizer::RegisterInfo*, v8::internal::interpreter::BytecodeRegisterOptimizer::RegisterInfo*)
+      1    0.0%    0.0%  T v8::internal::interpreter::BytecodeRegisterOptimizer::PrepareOutputRegister(v8::internal::interpreter::Register)
+      1    0.0%    0.0%  T v8::internal::interpreter::BytecodeGenerator::VisitObjectLiteral(v8::internal::ObjectLiteral*)
+      1    0.0%    0.0%  T v8::internal::interpreter::BytecodeGenerator::VisitCall(v8::internal::Call*)
+      1    0.0%    0.0%  T v8::internal::compiler::StateValuesCache::BuildTree(unsigned long*, v8::internal::compiler::Node**, unsigned long, v8::internal::BitVector const*, int, unsigned long)
+      1    0.0%    0.0%  T v8::internal::compiler::SimplifiedOperatorReducer::Reduce(v8::internal::compiler::Node*)
+      1    0.0%    0.0%  T v8::internal::compiler::OperatorProperties::HasFrameStateInput(v8::internal::compiler::Operator const*)
+      1    0.0%    0.0%  T v8::internal::compiler::Node::New(v8::internal::Zone*, unsigned int, v8::internal::compiler::Operator const*, int, v8::internal::compiler::Node* const*, bool)
+      1    0.0%    0.0%  T v8::internal::compiler::LoopVariableOptimizer::Run()
+      1    0.0%    0.0%  T v8::internal::compiler::LinearScanAllocator::ProcessCurrentRange(v8::internal::compiler::LiveRange*)
+      1    0.0%    0.0%  T v8::internal::compiler::GraphTrimmer::TrimGraph()
+      1    0.0%    0.0%  T v8::internal::UnoptimizedCompilationInfo::scope() const
+      1    0.0%    0.0%  T v8::internal::TransitionsAccessor::Initialize()
+      1    0.0%    0.0%  T v8::internal::String::SlowEquals(v8::internal::Isolate*, v8::internal::Handle<v8::internal::String>, v8::internal::Handle<v8::internal::String>)
+      1    0.0%    0.0%  T v8::internal::StoreBuffer::MoveEntriesToRememberedSet(int)
+      1    0.0%    0.0%  T v8::internal::StackFrameIteratorBase::StackFrameIteratorBase(v8::internal::Isolate*, bool)
+      1    0.0%    0.0%  T v8::internal::StackFrame::GetCallerState(v8::internal::StackFrame::State*) const
+      1    0.0%    0.0%  T v8::internal::Scanner::ScanIdentifierOrKeywordInner(v8::internal::Scanner::LiteralScope*)
+      1    0.0%    0.0%  T v8::internal::RootScavengeVisitor::VisitRootPointer(v8::internal::Root, char const*, v8::internal::Object**)
+      1    0.0%    0.0%  T v8::internal::RelocIterator::next()
+      1    0.0%    0.0%  T v8::internal::Parser::ParseFunctionLiteral(v8::internal::AstRawString const*, v8::internal::Scanner::Location, v8::internal::FunctionNameValidity, v8::internal::FunctionKind, int, v8::internal::FunctionLiteral::FunctionType, v8::internal::LanguageMode, v8::internal::ZoneList<v8::internal::AstRawString const*>*, bool*)
+      1    0.0%    0.0%  T v8::internal::Object::SetPropertyInternal(v8::internal::LookupIterator*, v8::internal::Handle<v8::internal::Object>, v8::internal::LanguageMode, v8::internal::Object::StoreFromKeyed, bool*)
+      1    0.0%    0.0%  T v8::internal::Object::SetProperty(v8::internal::LookupIterator*, v8::internal::Handle<v8::internal::Object>, v8::internal::LanguageMode, v8::internal::Object::StoreFromKeyed)
+      1    0.0%    0.0%  T v8::internal::NewSpace::AddFreshPage()
+      1    0.0%    0.0%  T v8::internal::MemoryChunk::Initialize(v8::internal::Heap*, unsigned long, unsigned long, unsigned long, unsigned long, v8::internal::Executability, v8::internal::Space*, v8::internal::VirtualMemory*)
+      1    0.0%    0.0%  T v8::internal::Map::CopyWithField(v8::internal::Isolate*, v8::internal::Handle<v8::internal::Map>, v8::internal::Handle<v8::internal::Name>, v8::internal::Handle<v8::internal::FieldType>, v8::internal::PropertyAttributes, v8::internal::PropertyConstness, v8::internal::Representation, v8::internal::TransitionFlag)
+      1    0.0%    0.0%  T v8::internal::ItemParallelJob::Task::RunInternal()
+      1    0.0%    0.0%  T v8::internal::ItemParallelJob::Run(std::__1::shared_ptr<v8::internal::Counters>)
+      1    0.0%    0.0%  T v8::internal::InnerPointerToCodeCache::GetCacheEntry(unsigned long)
+      1    0.0%    0.0%  T v8::internal::IncrementalMarking::RecordWriteFromCode(v8::internal::HeapObject*, v8::internal::MaybeObject**, v8::internal::Isolate*)
+      1    0.0%    0.0%  T v8::internal::Heap::ShouldOptimizeForMemoryUsage()
+      1    0.0%    0.0%  T v8::internal::Heap::ReserveSpace(std::__1::vector<v8::internal::Heap::Chunk, std::__1::allocator<v8::internal::Heap::Chunk> >*, std::__1::vector<unsigned long, std::__1::allocator<unsigned long> >*)
+      1    0.0%    0.0%  T v8::internal::Heap::NumberOfScavengeTasks()
+      1    0.0%    0.0%  T v8::internal::Heap::GetFillToAlign(unsigned long, v8::internal::AllocationAlignment)
+      1    0.0%    0.0%  T v8::internal::Heap::GcSafeFindCodeForInnerPointer(unsigned long)
+      1    0.0%    0.0%  T v8::internal::Heap::CanExpandOldGeneration(unsigned long)
+      1    0.0%    0.0%  T v8::internal::GCTracer::CombinedMarkCompactSpeedInBytesPerMillisecond()
+      1    0.0%    0.0%  T v8::internal::FixedArrayBase::IsCowArray() const
+      1    0.0%    0.0%  T v8::internal::Factory::NewFunction(v8::internal::Handle<v8::internal::Map>, v8::internal::Handle<v8::internal::SharedFunctionInfo>, v8::internal::Handle<v8::internal::Context>, v8::internal::PretenureFlag)
+      1    0.0%    0.0%  T v8::internal::Factory::NewCodeForDeserialization(unsigned int)
+      1    0.0%    0.0%  T v8::internal::Deserializer<v8::internal::DefaultDeserializerAllocator>::ReadData(v8::internal::MaybeObject**, v8::internal::MaybeObject**, int, unsigned long)
+      1    0.0%    0.0%  T v8::internal::ArrayBufferTracker::ProcessBuffers(v8::internal::Page*, v8::internal::ArrayBufferTracker::ProcessingMode)
+      1    0.0%    0.0%  T v8::base::Semaphore::Wait()
+      1    0.0%    0.0%  T v8::base::ConditionVariable::~ConditionVariable()
+      1    0.0%    0.0%  T _os_unfair_lock_assert_owner
+      1    0.0%    0.0%  T _os_unfair_lock_assert_not_owner
+      1    0.0%    0.0%  T _mach_vm_map
+      1    0.0%    0.0%  T _mach_error_type
+      1    0.0%    0.0%  T _guarded_open_dprotected_np
+      1    0.0%    0.0%  T _fputws_l
+      1    0.0%    0.0%  T __pthread_workqueue_addthreads
+      1    0.0%    0.0%  T __pthread_qos_class_decode
+      1    0.0%    0.0%  T __CFExecutableLinkedOnOrAfter
+
+ [Summary]:
+   ticks  total  nonlib   name
+   2186   53.4%   53.5%  JavaScript
+   1883   46.0%   46.1%  C++
+    290    7.1%    7.1%  GC
+     11    0.3%          Shared libraries
+     16    0.4%          Unaccounted
+
+ [C++ entry points]:
+   ticks    cpp   total   name
+   1472   93.0%   35.9%  T v8::internal::Runtime_StringToUpperCaseIntl(int, v8::internal::Object**, v8::internal::Isolate*)
+     49    3.1%    1.2%  T v8::internal::Builtin_HandleApiCall(int, v8::internal::Object**, v8::internal::Isolate*)
+     25    1.6%    0.6%  T v8::internal::Runtime_CompileLazy(int, v8::internal::Object**, v8::internal::Isolate*)
+      7    0.4%    0.2%  T v8::internal::Runtime_CompileOptimized_Concurrent(int, v8::internal::Object**, v8::internal::Isolate*)
+      4    0.3%    0.1%  T v8::internal::Runtime_KeyedStoreIC_Miss(int, v8::internal::Object**, v8::internal::Isolate*)
+      4    0.3%    0.1%  T v8::internal::Runtime_CompileForOnStackReplacement(int, v8::internal::Object**, v8::internal::Isolate*)
+      4    0.3%    0.1%  T _vm_read
+      3    0.2%    0.1%  T v8::internal::Runtime_StoreIC_Miss(int, v8::internal::Object**, v8::internal::Isolate*)
+      3    0.2%    0.1%  T v8::internal::Runtime_InterpreterDeserializeLazy(int, v8::internal::Object**, v8::internal::Isolate*)
+      2    0.1%    0.0%  T v8::internal::Runtime_StackGuard(int, v8::internal::Object**, v8::internal::Isolate*)
+      1    0.1%    0.0%  t _insert_node
+      1    0.1%    0.0%  T v8::internal::Runtime_StringEqual(int, v8::internal::Object**, v8::internal::Isolate*)
+      1    0.1%    0.0%  T v8::internal::Runtime_RegExpExec(int, v8::internal::Object**, v8::internal::Isolate*)
+      1    0.1%    0.0%  T v8::internal::Runtime_LoadIC_Miss(int, v8::internal::Object**, v8::internal::Isolate*)
+      1    0.1%    0.0%  T v8::internal::Runtime_Interrupt(int, v8::internal::Object**, v8::internal::Isolate*)
+      1    0.1%    0.0%  T v8::internal::Runtime_DeserializeLazy(int, v8::internal::Object**, v8::internal::Isolate*)
+      1    0.1%    0.0%  T v8::internal::Runtime_AllocateInNewSpace(int, v8::internal::Object**, v8::internal::Isolate*)
+      1    0.1%    0.0%  T v8::internal::IncrementalMarking::RecordWriteFromCode(v8::internal::HeapObject*, v8::internal::MaybeObject**, v8::internal::Isolate*)
+      1    0.1%    0.0%  T v8::internal::Builtin_StringFromCodePoint(int, v8::internal::Object**, v8::internal::Isolate*)
+
+ [Bottom up (heavy) profile]:
+  Note: percentage shows a share of a particular caller in the total
+  amount of its parent calls.
+  Callers occupying less than 1.0% are not shown.
+
+   ticks parent  name
+   1314   32.1%  LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+   1314  100.0%    LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+   1314  100.0%      LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+   1314  100.0%        LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+   1314  100.0%          LazyCompile: ~tryModuleLoad internal/modules/cjs/loader.js:609:23
+   1314  100.0%            LazyCompile: ~Module._load internal/modules/cjs/loader.js:575:24
+
+    345    8.4%  T int v8::internal::FastAsciiConvert<false>(char*, char const*, int, bool*)
+    345  100.0%    T v8::internal::Runtime_StringToUpperCaseIntl(int, v8::internal::Object**, v8::internal::Isolate*)
+    180   52.2%      LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+    177   98.3%        LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+    177  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+    177  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+      3    1.7%        LazyCompile: *set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      3  100.0%          Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      3  100.0%            LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+    159   46.1%      LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+    159  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+    159  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+    159  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+      4    1.2%      LazyCompile: *set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      4  100.0%        Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      4  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+      4  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+
+    288    7.0%  LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+    283   98.3%    LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+    283  100.0%      LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+    283  100.0%        LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+    283  100.0%          LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+    283  100.0%            LazyCompile: ~tryModuleLoad internal/modules/cjs/loader.js:609:23
+      4    1.4%    LazyCompile: *set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      4  100.0%      Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      4  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+      4  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+      4  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+
+    267    6.5%  T v8::internal::Factory::NewRawOneByteString(int, v8::internal::PretenureFlag)
+    267  100.0%    T v8::internal::Runtime_StringToUpperCaseIntl(int, v8::internal::Object**, v8::internal::Isolate*)
+    142   53.2%      LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+    138   97.2%        LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+    138  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+    138  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+      3    2.1%        LazyCompile: *set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      3  100.0%          Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      3  100.0%            LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+    124   46.4%      LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+    124  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+    124  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+    124  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+
+    239    5.8%  Builtin: StringLessThan
+    150   62.8%    LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+    147   98.0%      LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+    147  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+    147  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+    147  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+      3    2.0%      LazyCompile: *set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      3  100.0%        Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      3  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+      3  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+     87   36.4%    LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     87  100.0%      LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     87  100.0%        LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+     87  100.0%          LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+     87  100.0%            LazyCompile: ~tryModuleLoad internal/modules/cjs/loader.js:609:23
+
+    197    4.8%  T v8::internal::ConvertToUpper(v8::internal::Handle<v8::internal::String>, v8::internal::Isolate*)
+    197  100.0%    T v8::internal::Runtime_StringToUpperCaseIntl(int, v8::internal::Object**, v8::internal::Isolate*)
+    101   51.3%      LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+    101  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+    101  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+    101  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+     95   48.2%      LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+     95  100.0%        LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     95  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     95  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+
+    195    4.8%  t v8::internal::Heap::AllocateRaw(int, v8::internal::AllocationSpace, v8::internal::AllocationAlignment)
+    194   99.5%    T v8::internal::Runtime_StringToUpperCaseIntl(int, v8::internal::Object**, v8::internal::Isolate*)
+     99   51.0%      LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+     98   99.0%        LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     98  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     98  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+      1    1.0%        LazyCompile: *set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      1  100.0%          Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      1  100.0%            LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     92   47.4%      LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     92  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     92  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+     92  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+      2    1.0%      LazyCompile: *set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      2  100.0%        Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      2  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+      2  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+
+    157    3.8%  Builtin: CEntry_Return1_DontSaveFPRegs_ArgvOnStack_NoBuiltinExit
+     62   39.5%    T v8::internal::Runtime_StringToUpperCaseIntl(int, v8::internal::Object**, v8::internal::Isolate*)
+     32   51.6%      LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     32  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     32  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+     32  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+     28   45.2%      LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+     28  100.0%        LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     28  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     28  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+      1    1.6%      LazyCompile: *set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      1  100.0%        Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      1  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+      1  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+      1    1.6%      LazyCompile: *Tree._less /Users/nalp/Projects/rbts/dist/tree.js:28:22
+      1  100.0%        LazyCompile: ~_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+      1  100.0%          LazyCompile: *set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      1  100.0%            Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     54   34.4%    LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     54  100.0%      LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     54  100.0%        LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+     54  100.0%          LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+     54  100.0%            LazyCompile: ~tryModuleLoad internal/modules/cjs/loader.js:609:23
+     39   24.8%    LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+     39  100.0%      LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     39  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     39  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+     39  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+
+    149    3.6%  T v8::internal::Runtime_StringToUpperCaseIntl(int, v8::internal::Object**, v8::internal::Isolate*)
+    149  100.0%    T v8::internal::Runtime_StringToUpperCaseIntl(int, v8::internal::Object**, v8::internal::Isolate*)
+     83   55.7%      LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     83  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     83  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+     83  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+     63   42.3%      LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+     62   98.4%        LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     62  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     62  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+      1    1.6%        LazyCompile: *set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      1  100.0%          Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      1  100.0%            LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+      2    1.3%      LazyCompile: *set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      2  100.0%        Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      2  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+      2  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+
+     99    2.4%  T v8::internal::String::GetFlatContent()
+     99  100.0%    T v8::internal::Runtime_StringToUpperCaseIntl(int, v8::internal::Object**, v8::internal::Isolate*)
+     49   49.5%      LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     49  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     49  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+     49  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+     48   48.5%      LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+     46   95.8%        LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     46  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     46  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+      2    4.2%        LazyCompile: *set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      2  100.0%          Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      2  100.0%            LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+      2    2.0%      LazyCompile: *_findNode /Users/nalp/Projects/rbts/dist/tree.js:115:31
+      2  100.0%        LazyCompile: ~set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      2  100.0%          Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      2  100.0%            LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+
+     95    2.3%  Builtin: StringEqual
+     95  100.0%    LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     95  100.0%      LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     95  100.0%        LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+     95  100.0%          LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+     95  100.0%            LazyCompile: ~tryModuleLoad internal/modules/cjs/loader.js:609:23
+
+     87    2.1%  t v8::internal::String::Flatten(v8::internal::Isolate*, v8::internal::Handle<v8::internal::String>, v8::internal::PretenureFlag)
+     87  100.0%    T v8::internal::Runtime_StringToUpperCaseIntl(int, v8::internal::Object**, v8::internal::Isolate*)
+     49   56.3%      LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     49  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     49  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+     49  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+     38   43.7%      LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+     37   97.4%        LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     37  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     37  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+      1    2.6%        LazyCompile: ~set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      1  100.0%          Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      1  100.0%            LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+
+     70    1.7%  T v8::internal::Heap::AllocateRawWithRetryOrFail(int, v8::internal::AllocationSpace, v8::internal::AllocationAlignment)
+     70  100.0%    T v8::internal::Runtime_StringToUpperCaseIntl(int, v8::internal::Object**, v8::internal::Isolate*)
+     36   51.4%      LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     36  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     36  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+     36  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+     33   47.1%      LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+     33  100.0%        LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     33  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     33  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+      1    1.4%      LazyCompile: *_findNode /Users/nalp/Projects/rbts/dist/tree.js:115:31
+      1  100.0%        LazyCompile: ~set /Users/nalp/Projects/rbts/dist/tree.js:46:8
+      1  100.0%          Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      1  100.0%            LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+
+     63    1.5%  T v8::internal::Heap::AllocateRawWithLightRetry(int, v8::internal::AllocationSpace, v8::internal::AllocationAlignment)
+     63  100.0%    T v8::internal::Runtime_StringToUpperCaseIntl(int, v8::internal::Object**, v8::internal::Isolate*)
+     34   54.0%      LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     34  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     34  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+     34  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+     29   46.0%      LazyCompile: *_insert /Users/nalp/Projects/rbts/dist/tree.js:120:29
+     29  100.0%        LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     29  100.0%          LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     29  100.0%            LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+
+     54    1.3%  Builtin: StringAdd_CheckNone_NotTenured
+     53   98.1%    LazyCompile: *<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+     53  100.0%      LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+     53  100.0%        LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+     53  100.0%          LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+     53  100.0%            LazyCompile: ~tryModuleLoad internal/modules/cjs/loader.js:609:23
+      1    1.9%    LazyCompile: *randString /Users/nalp/Projects/rbts/dist/profile.js:13:20
+      1  100.0%      Eval: ~<anonymous> /Users/nalp/Projects/rbts/dist/profile.js:1:1
+      1  100.0%        LazyCompile: ~Module._compile internal/modules/cjs/loader.js:727:37
+      1  100.0%          LazyCompile: ~Module._extensions..js internal/modules/cjs/loader.js:814:37
+      1  100.0%            LazyCompile: ~Module.load internal/modules/cjs/loader.js:664:33
+
+     45    1.1%  T v8::internal::IncrementalMarking::Step(unsigned long, v8::internal::IncrementalMarking::CompletionAction, v8::internal::StepOrigin, v8::internal::WorklistToProcess)
+
+     43    1.0%  T _mach_vm_purgable_control
+
