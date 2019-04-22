@@ -15,8 +15,13 @@ This implementation has the same interface as JavaScript's built-in type
 `Map`, so it can be used as replacement for `Map`, however iteration is
 sorted according to the `lessOp` parameter in the constructor.
 
-Currently no guarantees of efficiency are given. I suspect, for example,
-that the `lessOp` parameter is not good for performance.
+The implementation seems to be rather efficient. I had a short stint with
+profiling. Adding a million entries with a case-insensitive sort using
+`(a, b) => a.toUpperCase() < b.toUpperCase()` needed 5 seconds on my MacBook
+Air 13inch early 2015. About half of that was inside C++ (internal String to
+uppercase) and the other half in JavaScript, and of that about 7% in the
+raw insert of the tree. I am no expert but this seems good to me. Have
+a look at the [profiler's output here](https://github.com/nalply/rbts/blob/profile-stint/profile.txt).
 
 ## Example
 

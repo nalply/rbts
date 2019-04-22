@@ -2,8 +2,8 @@
   "name": "rbts",
   "version": "0.0.2",
   "description": "Typescript Red-Black Tree",
-  "main": "dist/redblack.js",
-  "types": "dist/redblack.d.ts",
+  "main": "dist/tree.js",
+  "types": "dist/tree.d.ts",
   "scripts": {
     "build": "tsc",
     "lint": "tslint --project .",
@@ -48,9 +48,13 @@
     "timeout": "10s"
   },
   "nyc": {
-    "include": [ "tree.ts", "node.ts" ],
+    "include": [
+      "tree.ts",
+      "node.ts"
+    ],
     "exclude": [
-      "typings", "test.ts"
+      "typings",
+      "test.ts"
     ],
     "extension": [
       ".ts"
