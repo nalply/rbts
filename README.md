@@ -2,10 +2,11 @@
 
 [![Red Black Tree SVG](https://upload.wikimedia.org/wikipedia/commons/1/10/Red-black_tree_example_nN.svg)](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree)
 
-[![npm version](https://badge.fury.io/js/rbts.svg)](https://badge.fury.io/js/rbts)
+[![npm Version](https://badge.fury.io/js/rbts.svg)](https://badge.fury.io/js/rbts)
 [![Dependencies](https://david-dm.org/nalply/rbts.svg)](https://david-dm.org/nalply/rbts)
-[![Build Status](https://travis-ci.com/nalply/rbts.svg?branch=master)](https://travis-ci.com/nalply/rbts)
-[![codecov](https://codecov.io/gh/nalply/rbts/branch/master/graph/badge.svg)](https://codecov.io/gh/nalply/rbts)
+[![Dev Dependencies](https://david-dm.org/nalply/rbts/dev-status.svg)](https://david-dm.org/nalply/rbts?type=dev)
+[![Build](https://travis-ci.com/nalply/rbts.svg?branch=master)](https://travis-ci.com/nalply/rbts)
+[![Code Coverage](https://codecov.io/gh/nalply/rbts/branch/master/graph/badge.svg)](https://codecov.io/gh/nalply/rbts)
 
 A red-black tree is a datastructure for sorted storage of key-value pairs.
 Items are stored in tree nodes and sorted after a criterium (`LessOp`).
