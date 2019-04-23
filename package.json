@@ -1,10 +1,11 @@
 {
   "name": "rbts",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Typescript Red-Black Tree",
   "main": "dist/tree.js",
   "types": "dist/tree.d.ts",
   "scripts": {
+    "install": "tsc",
     "build": "tsc",
     "doc": "typedoc dist/*.d.ts",
     "postbuild": "npm run doc",
@@ -19,7 +20,7 @@
     "@types/chai": "^4.1.7",
     "@types/debug": "^4.1.4",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^11.13.6",
+    "@types/node": "^11.13.7",
     "chai": "^4.2.0",
     "codecov": "^3.3.0",
     "debug": "^4.1.1",

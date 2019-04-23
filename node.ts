@@ -1,6 +1,7 @@
 /** Red-black Tree Nodes to maintain the tree's internal order. Each entry in
  * the tree is managed by a node and they are linked by parent and the left
- * and right children. Nodes also are either red or black.
+ * and right children. Nodes also are either red or black. This is internal
+ * and not available if installed by npm.
  */
 export class Node<K, V> {
   /** @internal */ _key: K

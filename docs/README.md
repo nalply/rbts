@@ -4,18 +4,12 @@
 
 ### Classes
 
-* [Node](node.md)
 * [Tree](tree.md)
 
 ### Type aliases
 
 * [Assignable](#assignable)
 * [LessOp](#lessop)
-
-### Functions
-
-* [nil](#nil)
-* [ok](#ok)
 
 ---
 
@@ -52,42 +46,3 @@ Type for the less-than criterium after which the entries will be sorted: a funct
 | b | `K` |
 
 **Returns:** `boolean`
-___
-## Functions
-
-<a id="nil"></a>
-
-###  nil
-
-▸ **nil**(node: *[Node](classes/node.md)<`unknown`, `unknown`>*): `boolean`
-
-*Defined in node.d.ts:34*
-
-**Parameters:**
-
-| Name | Type |
-| ------ | ------ |
-| node | [Node](classes/node.md)<`unknown`, `unknown`> |
-
-**Returns:** `boolean`
-true if Node is nil
-
-___
-<a id="ok"></a>
-
-###  ok
-
-▸ **ok**(node: *[Node](classes/node.md)<`unknown`, `unknown`>*): `boolean`
-
-*Defined in dist/node.d.ts:36*
-
-**Parameters:**
-
-| Name | Type |
-| ------ | ------ |
-| node | [Node](classes/node.md)<`unknown`, `unknown`> |
-
-**Returns:** `boolean`
-true if Node is not nil
-
-

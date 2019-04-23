@@ -11,7 +11,7 @@ import { nil, Node, ok } from './node'
  * @typeparam K key type
  * @typeparam V value type
  */
-export type Assignable<K, V> = Iterator<[K, V]> | Array<[K, V]>
+export type TreeAssignable<K, V> = Iterator<[K, V]> | Array<[K, V]>
   | (K extends string ? Record<K, V> : never)
 
 
@@ -42,7 +42,7 @@ export class Tree<K = string, V = any>implements Map<K, V> {
    *   run in O(1) time to ensure the red-black tree efficiency
    */
   constructor(
-    source?: Assignable<K, V>,
+    source?: TreeAssignable<K, V>,
     lessOp: LessOp<K> = (a, b) => a < b,
   ) {
     this._less = (a, b) => lessOp(a, b.key)
@@ -55,7 +55,7 @@ export class Tree<K = string, V = any>implements Map<K, V> {
   }
 
   /** Assign all entries from source to the tree */
-  assign(source: Assignable<K, V>): this {
+  assign(source: TreeAssignable<K, V>): this {
     if (!isIterable(source))
       source = Object.entries(source) as any
 
