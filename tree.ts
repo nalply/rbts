@@ -1,30 +1,46 @@
-// Overview about the type variables, classes and interfaces
-// ----------------------------------------------------------------------------
-// K                   key type
-// V                   value type
-// R                   iterator result value type, e.g. [K, V] for entries()
-// N                   tree node type, typically N extends Node<K, V>
-// T                   tree type, typically T extends IterTree<N>
-// Assignable<K, V>    entry iterator or array to assign entries to tree
-// LessOp<K>           function of a and b to return true if a < b
-// Tree<K, V>          red-black tree implementing Map
-// IterTree<N>         neccessary tree properties for iterators
-// Iter<K, V, R, N, T> iterator implementing IterableIterator<R>
-// ----------------------------------------------------------------------------
 // Convention: Names starting with _ aren't public. You are on your own if you
-// use them. They are excluded from *.d.ts files by anyway.
+// use them. They are excluded from *.d.ts files by anyway (by internal tag)
+
+// Todo: iteration from-to (pagination not neccessary)
+// Todo: return something which can update its value
 
 import { nil, Node, ok } from './node'
 
-/** A red black tree written in TypeScript. It can be used instead of
- * {Map}, where the entries are sorted by a comparison function passed in
- * by the constructor.
+/** Type for assigning to trees, used by the constructor and [[Tree.assign]]:
+ * iterator or array over key-value tuples or objects but only if K is string.
+ * @typeparam K key type
+ * @typeparam V value type
+ */
+export type Assignable<K, V> = Iterator<[K, V]> | Array<[K, V]>
+  | (K extends string ? Record<K, V> : never)
+
+
+/** Type for the less-than criterium after which the entries will be sorted:
+ * a function to return true if entry `a` is less than entry `b`.
+ * @typeparam K key type, entries are sorted by key
+ */
+export type LessOp<K> = (a: K, b: K) => boolean
+
+
+/** A red-black tree written in TypeScript. The entries are stored sorted after
+ * the criterium `lessOp` passed tp the constructor or by default by the
+ * comparison operator `<` (less). Insertion, deletion and iteration have
+ * O(log n) time complexity where n is the number of entries in the tree.
+ * @typeparam K key type, entries are sorted by key
+ * @typeparam V value type
  */
 export class Tree<K = string, V = any>implements Map<K, V> {
   /** @internal */ _root: Node<K, V> = Node.nil
   /** @internal */ _size: number = 0
   /** @internal */ readonly _less: Less<K, Node<K, V>>
 
+  /** Create a new red-black tree optionally with entries from `source` and
+   * the sorting criterium `lessOp`.
+   * @param source an array of entries or an iterable of entries or an object
+   * @param lessOp sorting criterum: a function taking two arguments and
+   *   returning true if the first is less than the second argument, should
+   *   run in O(1) time to ensure the red-black tree efficiency
+   */
   constructor(
     source?: Assignable<K, V>,
     lessOp: LessOp<K> = (a, b) => a < b,
@@ -33,68 +49,12 @@ export class Tree<K = string, V = any>implements Map<K, V> {
     if (source) this.assign(source)
   }
 
+  /** @returns `"[Tree size:<size>]"` with `<size>` as in [[Tree.size]] */
   toString(): string {
-    return `[Tree size: ${this.size}]`
+    return `[${this[Symbol.toStringTag]} size:${this.size}]`
   }
 
-  // --- Start implementing Map ---
-
-  get size() {
-    return this._size
-  }
-  [Symbol.toStringTag]: string = 'Tree'
-
-  has(key: K): boolean {
-    return ok(this._findNode(key))
-  }
-
-  get(key: K): V | undefined {
-    const node = this._findNode(key)
-
-    return ok(node) ? node.value : undefined
-  }
-
-  set(key: K, value: V): this {
-    const node = this._findNode(key)
-    ok(node) ?  node.value = value : this._insert(key, value)
-    return this
-  }
-
-  delete(key: K): boolean {
-    return this._deleteNode(this._findNode(key))
-  }
-
-  clear(): void {
-    this._root = Node.nil
-    this._size = 0
-  }
-
-  forEach(f: (value: V, key: K, map: Map<K, V>) => void, self?: any): void {
-    for (const entry of this.entries())
-      f.call(self, entry[1], entry[0], this)
-  }
-
-  [Symbol.iterator](): IterableIterator<[K, V]> {
-    return this.entries()
-  }
-
-  entries(): IterableIterator<[K, V]> {
-    return this._iterator<[K, V]>(node => node.entry())
-  }
-
-  keys(): IterableIterator<K> {
-    return this._iterator<K>(node => node.key)
-  }
-
-  values(): IterableIterator<V> {
-    return this._iterator<V>(node => node.value)
-  }
-
-  // TODO perhaps: https://github.com/tc39/proposal-collection-methods
-
-  // --- End implementing Map ---
-
-  // assign all entries from source to the tree
+  /** Assign all entries from source to the tree */
   assign(source: Assignable<K, V>): this {
     if (!isIterable(source))
       source = Object.entries(source) as any
@@ -104,9 +64,88 @@ export class Tree<K = string, V = any>implements Map<K, V> {
     return this
   }
 
-  // @param get    function to map from node to iterator value R
-  // @param start  start node for iterating over a tree subset (inclusive)
-  // @param end    end node for iterating over a tree subset (exclusive)
+  // --- Start implementing Map ---
+
+  /** @returns the number of entries in the tree, O(1) */
+  get size() {
+    return this._size
+  }
+
+  /** Used by [[Tree.toString]] */
+  [Symbol.toStringTag]: string = 'Tree'
+
+  /** @returns true if an entry with key is found, O(log n) */
+  has(key: K): boolean {
+    return ok(this._findNode(key))
+  }
+
+  /** Get an entry with the key, O(log n) */
+  get(key: K): V | undefined {
+    const node = this._findNode(key)
+
+    return ok(node) ? node.value : undefined
+  }
+
+  /** Set an entry, O(log n) */
+  set(key: K, value: V): this {
+    const node = this._findNode(key)
+    ok(node) ?  node.value = value : this._insert(key, value)
+    return this
+  }
+
+  /** Delete an entry with the key from the tree, O(log n)
+   * @returns true if there was a key
+   */
+  delete(key: K): boolean {
+    return this._deleteNode(this._findNode(key))
+  }
+
+  /** Clear the tree, same as `Map.clear()`, O(1) */
+  clear(): void {
+    this._root = Node.nil
+    this._size = 0
+  }
+
+  /** Invoke `f` over all entries sorted by key, same as `Map.forEach()`
+   * @param f Function taking value, key and container as parameters which
+   *   will be called for all entries of the tree in their order
+   * @param self `this` inside f
+   */
+  forEach(f: (value: V, key: K, map: Map<K, V>) => void, self?: any): void {
+    for (const entry of this.entries())
+      f.call(self, entry[1], entry[0], this)
+  }
+
+  /** Indicate that Tree is iterable but same as [[Tree.entries]] */
+  [Symbol.iterator](): IterableIterator<[K, V]> {
+    return this.entries()
+  }
+
+  /** Iterator over entries, sorted by key, O(log n) each step */
+  entries(): IterableIterator<[K, V]> {
+    return this._iterator<[K, V]>(node => node.entry())
+  }
+
+  /** Iterator over keys, sorted, O(log n) each step */
+  keys(): IterableIterator<K> {
+    return this._iterator<K>(node => node.key)
+  }
+
+  /** Iterator over values, sorted by key, O(log n) each step */
+  values(): IterableIterator<V> {
+    return this._iterator<V>(node => node.value)
+  }
+
+  // TODO perhaps: https://github.com/tc39/proposal-collection-methods
+
+  // --- End implementing Map ---
+
+  // --------------------------------------------------------------------------
+  // From here: not part of the public API, no documentation comments any more
+
+  // get    function to map from node to iterator value R
+  // start  start node for iterating over a tree subset (inclusive)
+  // end    end node for iterating over a tree subset (exclusive)
   /** @internal */ _iterator<R>(
     get: (node: Node<K, V>) => R, start?: Node<K, V>, end?: Node<K, V>,
   ): IterableIterator<R> {
@@ -204,6 +243,9 @@ export class Tree<K = string, V = any>implements Map<K, V> {
     return this
   }
 
+  // Always make sure that node is member of the tree! If not, the tree can
+  // get broken, for example by violating the invariant that for all nodes
+  // the left child's key is never larger.
   /** @internal */_deleteNode(node: Node<K, V>): boolean {
     if (nil(node)) return false
 
@@ -294,22 +336,6 @@ export class Tree<K = string, V = any>implements Map<K, V> {
     return true
   }
 
-    // this._size--
-    // let next = node
-    // if (nil(node.left) && nil(node.right)) {
-    //   next = this.nextNode(node)
-    //   node._key = next.key
-    //   node.value = next.value
-    // }
-    // const child = ok(next.left) ? next.left : next.right
-    // if (ok(child)) child._parent = next.parent
-    // if (nil(next.parent)) this._root = child
-    // else if (next === next.parent.left) next.parent._left = child
-    // else next.parent._right = child
-
-    // if (next.red) return true
-
-
   /** @internal */ _leftRotate(node: Node<K, V>): void {
     const child = node.right
     node._right = child.left
@@ -335,25 +361,31 @@ export class Tree<K = string, V = any>implements Map<K, V> {
   }
 }
 
-export type Assignable<K, V> = Iterator<[K, V]> | Array<[K, V]>
-  | (K extends string ? Record<K, V> : never)
 
-export type LessOp<K> = (a: K, b: K) => boolean
-
-
+// type guard (used by assign())
 function isIterable(obj: any): obj is Iterable<unknown> {
   return obj && typeof obj[Symbol.iterator] === 'function'
 }
 
 
+// different from LessOp: second argument is Node, not key!
 type Less<K, N> = (key: K, node: N) => boolean
 
+
+// Interface to expose a few properties of Tree to the iterator
 interface IterTree<K, N> {
   _less: Less<K, N>
   _nextNode(node: N): N
   _firstNode(): N
 }
 
+
+// Iterator implementation
+// K  key type
+// V  value type
+// R  iterator result value type, e.g. [K, V] for entries()
+// N  tree node type, typically N extends Node<K, V>
+// T  tree type, typically T extends IterTree<N>
 class Iter<K, V, R, N extends Node<K, V>, T extends IterTree<K, N>>
 implements IterableIterator<R>
 {
@@ -362,8 +394,6 @@ implements IterableIterator<R>
   /** @internal */ _end: N
   /** @internal */ _tree: T
   /** @internal */ _result: (node: N) => R
-
-  get node(): N { return this._node }
 
   constructor(
     tree: T,
@@ -381,12 +411,12 @@ implements IterableIterator<R>
   [Symbol.iterator](): IterableIterator<R> { return this }
 
   next(): IteratorResult<R> {
-    if (nil(this.node)) this._node = this._tree._firstNode()
-    if (this._started) this._node = this._tree._nextNode(this.node)
+    if (nil(this._node)) this._node = this._tree._firstNode()
+    if (this._started) this._node = this._tree._nextNode(this._node)
     this._started = true
 
-    const done = nil(this.node) || this.node === this._end
-    const value = done ? undefined : this._result(this.node)
+    const done = nil(this._node) || this._node === this._end
+    const value = done ? undefined : this._result(this._node)
     return { done, value } as IteratorResult<R>
     //                     ^^^^^^^^^^^^^^^^^^^^
     // See https://github.com/Microsoft/TypeScript/issues/11375

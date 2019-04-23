@@ -6,6 +6,8 @@
   "types": "dist/tree.d.ts",
   "scripts": {
     "build": "tsc",
+    "doc": "typedoc dist/*.d.ts",
+    "postbuild": "npm run doc",
     "lint": "tslint --project .",
     "pretest": "npm run build; npm run lint",
     "test": "nyc mocha",
@@ -25,6 +27,8 @@
     "nyc": "^14.0.0",
     "ts-node": "^8.1.0",
     "tslint": "^5.16.0",
+    "typedoc": "^0.14.2",
+    "typedoc-plugin-markdown": "^1.2.0",
     "typescript": "^3.4.4"
   },
   "dependencies": {},

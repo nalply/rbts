@@ -9,5 +9,15 @@
     "declaration": true,
     "pretty": true,
     "strict": true
+  },
+  "typedocOptions": {
+    "name": "Typescript Red-Black Tree",
+    "out": "doc",
+    "mode": "file",
+    "readme": "none",
+    "theme": "markdown",
+    "excludeNotExported": true,
+    "includeDeclarations": true,
+    "exclude": "node_modules/*"
   }
 }

@@ -1,6 +1,10 @@
+/** Red-black Tree Nodes to maintain the tree's internal order. Each entry in
+ * the tree is managed by a node and they are linked by parent and the left
+ * and right children. Nodes also are either red or black.
+ */
 export class Node<K, V> {
   /** @internal */ _key: K
-  /** @internal */ _value: V          // Node.nil is Readonly<Node<K, V>>
+  /** @internal */ _value: V
   /** @internal */ _parent: Node<K, V> = Node.nil as Node<K, V>
   /** @internal */ _left: Node<K, V> = Node.nil as Node<K, V>
   /** @internal */ _right: Node<K, V> = Node.nil as Node<K, V>
@@ -9,24 +13,45 @@ export class Node<K, V> {
   /** @internal */ get _red() { return !this._black }
   /** @internal */ set _red(value: boolean) { this._black = !value }
 
+  /** Construct a new standalone Node with key and value */
   constructor(key: K, value: V) {
     this._key = key
     this._value = value
   }
 
+  /** The nil node (see the Null Object Pattern), used for leaf nodes or
+   * for the parent of the root node. Nil nodes are always black and can't be
+   * mutated (except for color which is ignored, this simplifies the
+   * rebalancing of the tree after an insert or delete).
+   */
   static readonly nil = nilNode()
 
+  /** The key of the entry which the Node represents */
   get key(): K { return this._key }
+
+  /** The value of the entry which the Node represents, can be mutated */
   get value(): V { return this._value }
   set value(value: V) { this._value = value }
+
+  /** The left child of the Node */
   get left(): Node<K, V> { return this._left }
+
+  /** The right child of the Node */
   get right(): Node<K, V> { return this._right }
+
+  /** The parent of the Node */
   get parent(): Node<K, V> { return this._parent }
+
+  /** True if Node is black, false if it is red */
   get black(): boolean { return this._black }
+
+  /** True if Node is red, false if it is black */
   get red(): boolean { return !this._black }
 
+  /** The entry which the Node represents */
   entry(): [K, V] { return [ this.key, this.value ] }
 
+  /** Compact display of the node, use `()`for black and `<>` for red nodes */
   toString(detail = false): string {
     const o = detail ? this.black ? '(' : '<' : '['
     const c = detail ? this.black ? ')' : '>' : ']'
@@ -86,11 +111,13 @@ function nilNode(): Node<any, any> {
 nilNode.already = false
 
 
+/** @returns true if Node is nil */
 export function nil(node: Node<unknown, unknown>): boolean {
   return node === Node.nil
 }
 
 
+/** @returns true if Node is not nil */
 export function ok(node: Node<unknown, unknown>): boolean {
   return node !== Node.nil
 }

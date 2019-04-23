@@ -23,6 +23,12 @@ uppercase) and the other half in JavaScript, and of that about 7% in the
 raw insert of the tree. I am no expert but this seems good to me. Have
 a look at the [profiler's output here](https://github.com/nalply/rbts/blob/profile-stint/profile.txt).
 
+## Documentation
+
+Is in the directory [docs](docs/README.md). (Something went wrong with
+typedoc's Markdown theme and I had to fix it manually for the moment, and
+because I am not a robot  there might be broken links and other mistakes.)
+
 ## Example
 
 ```typescript
