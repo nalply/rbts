@@ -82,7 +82,7 @@ test('tree properties', () => {
   const rbt = new Tree
 
   strictEqual(rbt.size, 0)
-  strictEqual(rbt.toString(), '[Tree size: 0]')
+  strictEqual(rbt.toString(), '[Tree size:0]')
   isTrue(nil(rbt._root))
   strictEqual(rbt._root.key as any, Node.nil.key)
   strictEqual(rbt._root.value as any, Node.nil.value)
@@ -124,7 +124,7 @@ test('tree properties', () => {
   isTrue(ok(rbt._findNode('a')))
   isFalse(rbt.has('whatever'))
   strictEqual(rbt.size, 1)
-  strictEqual(rbt.toString(), '[Tree size: 1]')
+  strictEqual(rbt.toString(), '[Tree size:1]')
   strictEqual(rbt._firstNode().key, 'a')
   strictEqual(rbt._firstNode().value, 'alpha')
   deepEqual(rbt._root.entry(), [ 'a', 'alpha' ])
