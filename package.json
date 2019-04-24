@@ -1,6 +1,6 @@
 {
   "name": "rbts",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "Typescript Red-Black Tree",
   "main": "dist/tree.js",
   "types": "dist/tree.d.ts",

@@ -1,37 +1,31 @@
-# Typescript Red-Black Tree
+[Typescript Red-Black Tree main README](../README.md)
+
+
+#  API Documentation
 
 ## Index
 
 ### Classes
 
+* [Node](node.md)
 * [Tree](tree.md)
 
 ### Type aliases
 
-* [Assignable](#assignable)
 * [LessOp](#lessop)
+* [TreeAssignable](#treeassignable)
 
 ---
 
 ## Type aliases
 
-<a id="assignable"></a>
-
-###  Assignable
-
-**Ƭ Assignable**: *`Iterator`<[`K`, `V`]> \| `Array`<[`K`, `V`]> \| `K extends string ? Record<K, V> : never`*
-
-*Defined in tree.d.ts:6*
-
-Type for assigning to trees, used by the constructor and [Tree.assign](classes/tree.md#assign): iterator or array over key-value tuples or objects but only if K is string.
-___
 <a id="lessop"></a>
 
 ###  LessOp
 
 **Ƭ LessOp**: *`function`*
 
-*Defined in tree.d.ts:11*
+*Defined in tree.d.ts:12*
 
 Type for the less-than criterium after which the entries will be sorted: a function to return true if entry `a` is less than entry `b`.
 
@@ -46,3 +40,15 @@ Type for the less-than criterium after which the entries will be sorted: a funct
 | b | `K` |
 
 **Returns:** `boolean`
+___
+<a id="treeassignable"></a>
+
+###  TreeAssignable
+
+**Ƭ TreeAssignable**: *`Iterator`<[`K`, `V`]> \| `Array`<[`K`, `V`]> \| `K extends string ? Record<K, V> : never`*
+
+*Defined in tree.d.ts:7*
+
+Type for assigning to trees, used by the constructor and [Tree.assign](tree.md#assign): iterator or array over key-value tuples or objects but only if K is string.
+___
+

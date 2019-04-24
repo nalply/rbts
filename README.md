@@ -8,7 +8,7 @@
 [![Build](https://travis-ci.com/nalply/rbts.svg?branch=master)](https://travis-ci.com/nalply/rbts)
 [![Code Coverage](https://codecov.io/gh/nalply/rbts/branch/master/graph/badge.svg)](https://codecov.io/gh/nalply/rbts)
 
-A red-black tree is a datastructure for sorted storage of key-value pairs.
+A red-black tree is a data structure for sorted storage of key-value pairs.
 Items are stored in tree nodes and sorted after a criterium (`LessOp`).
 Search, insertion, deletion and traversal are performed in $O(\log n)$ time.
 This implementation has the same interface as JavaScript's built-in type

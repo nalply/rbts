@@ -1,10 +1,9 @@
 // Convention: Names starting with _ aren't public. You are on your own if you
-// use them. They are excluded from *.d.ts files by anyway (by internal tag)
+// use them. They are excluded from *.d.ts files by anyway (by internal tag).
+// Didnt' use private because they are needed in tests (white box testing).
 
-// Todo: iteration from-to (pagination not neccessary)
-// Todo: return something which can update its value
+import { Node } from './node'
 
-import { nil, Node, ok } from './node'
 
 /** Type for assigning to trees, used by the constructor and [[Tree.assign]]:
  * iterator or array over key-value tuples or objects but only if K is string.
@@ -30,7 +29,7 @@ export type LessOp<K> = (a: K, b: K) => boolean
  * @typeparam V value type
  */
 export class Tree<K = string, V = any>implements Map<K, V> {
-  /** @internal */ _root: Node<K, V> = Node.nil
+  /** @internal */ _root: Node<K, V> = Node.nilNode
   /** @internal */ _size: number = 0
   /** @internal */ readonly _less: Less<K, Node<K, V>>
 
@@ -60,8 +59,34 @@ export class Tree<K = string, V = any>implements Map<K, V> {
       source = Object.entries(source) as any
 
     for (const entry of source as Iterable<[K, V]>)
-      this._insert(entry[0], entry[1])
+      this._insertNode(new Node(entry[0], entry[1]))
     return this
+  }
+
+  /** Iterator over nodes, sorted by key, O(log n) each step
+   * @param start iteration start with this node (inclusive)
+   * @param end iteration end before this node (exclusive) or [[Node.nilNode]]
+   *   to iterate to the end
+   */
+  nodes(start?: Node<K, V>, end?: Node<K, V>): IterIter<Node<K, V>> {
+    return this._iterator<Node<K, V>>(node => node, start, end)
+  }
+
+  /** Get a node with the key, O(log n)
+   * @param key the key
+   */
+  getNode(key: K): Node<K, V> {
+    return this._findNode(key)
+  }
+
+  /** The node with the minimum key, O(log n) */
+  get minNode(): Node<K, V> {
+    return this._firstNode()
+  }
+
+  /** The node with the maximum key, O(log n) */
+  get maxNode(): Node<K, V> {
+    return this._lastNode()
   }
 
   // --- Start implementing Map ---
@@ -76,20 +101,20 @@ export class Tree<K = string, V = any>implements Map<K, V> {
 
   /** @returns true if an entry with key is found, O(log n) */
   has(key: K): boolean {
-    return ok(this._findNode(key))
+    return this._findNode(key).ok
   }
 
   /** Get an entry with the key, O(log n) */
   get(key: K): V | undefined {
     const node = this._findNode(key)
 
-    return ok(node) ? node.value : undefined
+    return node.ok ? node.value : undefined
   }
 
   /** Set an entry, O(log n) */
   set(key: K, value: V): this {
     const node = this._findNode(key)
-    ok(node) ?  node.value = value : this._insert(key, value)
+    node.ok ?  node.value = value : this._insertNode(new Node(key, value))
     return this
   }
 
@@ -97,12 +122,16 @@ export class Tree<K = string, V = any>implements Map<K, V> {
    * @returns true if there was a key
    */
   delete(key: K): boolean {
-    return this._deleteNode(this._findNode(key))
+    const node = this._findNode(key)
+    const result = this._deleteNode(node)
+    if (node.ok)
+      node._parent = node._left = node._right = Node.nilNode
+    return result
   }
 
   /** Clear the tree, same as `Map.clear()`, O(1) */
   clear(): void {
-    this._root = Node.nil
+    this._root = Node.nilNode
     this._size = 0
   }
 
@@ -117,23 +146,23 @@ export class Tree<K = string, V = any>implements Map<K, V> {
   }
 
   /** Indicate that Tree is iterable but same as [[Tree.entries]] */
-  [Symbol.iterator](): IterableIterator<[K, V]> {
+  [Symbol.iterator](): IterIter<[K, V]> {
     return this.entries()
   }
 
   /** Iterator over entries, sorted by key, O(log n) each step */
-  entries(): IterableIterator<[K, V]> {
-    return this._iterator<[K, V]>(node => node.entry())
+  entries(start?: Node<K, V>, end?: Node<K, V>): IterIter<[K, V]> {
+    return this._iterator<[K, V]>(node => node.entry(), start, end)
   }
 
   /** Iterator over keys, sorted, O(log n) each step */
-  keys(): IterableIterator<K> {
-    return this._iterator<K>(node => node.key)
+  keys(start?: Node<K, V>, end?: Node<K, V>): IterIter<K> {
+    return this._iterator<K>(node => node.key, start, end)
   }
 
   /** Iterator over values, sorted by key, O(log n) each step */
-  values(): IterableIterator<V> {
-    return this._iterator<V>(node => node.value)
+  values(start?: Node<K, V>, end?: Node<K, V>): IterIter<V> {
+    return this._iterator<V>(node => node.value, start, end)
   }
 
   // TODO perhaps: https://github.com/tc39/proposal-collection-methods
@@ -147,34 +176,30 @@ export class Tree<K = string, V = any>implements Map<K, V> {
   // start  start node for iterating over a tree subset (inclusive)
   // end    end node for iterating over a tree subset (exclusive)
   /** @internal */ _iterator<R>(
-    get: (node: Node<K, V>) => R, start?: Node<K, V>, end?: Node<K, V>,
-  ): IterableIterator<R> {
+    get: (node: Node<K, V>) => R,
+    start?: Node<K, V>,
+    end?: Node<K, V>,
+  ): IterIter<R> {
     return new Iter<K, V, R, Node<K, V>, Tree<K, V>>(this, get, start, end)
   }
 
-  /** @internal */ _nodes(
-    start?: Node<K, V>, end?: Node<K, V>,
-  ): IterableIterator<Node<K, V>> {
-    return this._iterator<Node<K, V>>(node => node, start, end)
-  }
-
   /** @internal */ _firstNode(node: Node<K, V> = this._root): Node<K, V> {
-    while (ok(node.left)) node = node.left
+    while (node._left.ok) node = node._left
     return node
   }
 
   /** @internal */ _lastNode(node: Node<K, V> = this._root): Node<K, V> {
-    while (ok(node.right)) node = node.right
+    while (node._right.ok) node = node._right
     return node
   }
 
   /** @internal */ _nextNode(node: Node<K, V>): Node<K, V> {
-    if (nil(node)) return node
-    if (ok(node.right)) return this._firstNode(node.right)
-    let parent = node.parent
-    while (ok(parent) && node === parent.right) {
+    if (node.nil) return node
+    if (node._right.ok) return this._firstNode(node._right)
+    let parent = node._parent
+    while (parent.ok && node === parent._right) {
       node = parent
-      parent = parent.parent
+      parent = parent._parent
     }
     return parent
   }
@@ -183,43 +208,48 @@ export class Tree<K = string, V = any>implements Map<K, V> {
     key: K,
     node: Node<K, V> = this._root,
   ): Node<K, V> {
-    while (ok(node) && node.key !== key)
-      node = this._less(key, node) ? node.left : node.right
-
+    while (node.ok && key !== node.key)
+      node = this._less(key, node) ? node._left : node._right
     return node
   }
 
-  /** @internal */_insert(key: K, value: V): this {
-    let node = new Node<K, V>(key, value)
+  /** @internal */_insertNode(node: Node<K, V>): this {
+    if (node.nil) return this
+
+    node._parent = node._left = node._right = Node.nilNode
     this._size++
-    if (nil(this._root)) {
+    if (this._root.nil) {
       this._root = node
       return this
     }
 
     let parent, n
     parent = n = this._root
-    while (ok(n)) {
+    while (n.ok) {
       parent = n
-      n = this._less(key, n) ? n.left : n.right
+      n = this._less(node.key, n) ? n._left : n._right
     }
     node._parent = parent
-    if (nil(parent)) this._root = node
-    else if (this._less(key, parent)) parent._left = node
+
+    // Empirical insight from fuzzying: parent is never nil. I tried to create
+    // a situation where parent is nil (add two nodes), but couldn't make
+    // parent nil. However should it happen anyway (will throw TypeError), an
+    // if branch could be added: if (parent.nil) this._root = node ... else
+    if (this._less(node.key, parent)) parent._left = node
     else parent._right = node
     node._red = true
 
     // Reinstate the red-black tree invariants after the insert
-    while (node.parent.red) {
-      parent = node.parent
-      const grandp: Node<K, V> = parent.parent
-      if (parent === grandp.left) {
-        if (grandp.right.red) {
-          parent._black = grandp.right._black = grandp._red = true
+    while (node._parent._red) {
+      parent = node._parent
+      const grandp = parent._parent
+      if (parent === grandp._left) {
+        if (grandp._right._red) {
+          parent._black = grandp._right._black = grandp._red = true
           node = grandp
           continue
         }
-        if (node === parent.right) {
+        if (node === parent._right) {
           this._leftRotate(parent)
 ;         [parent, node] = [node, parent]
         }
@@ -227,12 +257,12 @@ export class Tree<K = string, V = any>implements Map<K, V> {
         this._rightRotate(grandp)
         continue
       }
-      if (grandp.left.red) {
-        parent._black = grandp.left._black = grandp._red = true
+      if (grandp._left._red) {
+        parent._black = grandp._left._black = grandp._red = true
         node = grandp
         continue
       }
-      if (node === parent.left) {
+      if (node === parent._left) {
         this._rightRotate(parent)
 ;       [parent, node] = [node, parent]
       }
@@ -243,119 +273,120 @@ export class Tree<K = string, V = any>implements Map<K, V> {
     return this
   }
 
-  // Always make sure that node is member of the tree! If not, the tree can
-  // get broken, for example by violating the invariant that for all nodes
-  // the left child's key is never larger.
+  // Always make sure that node is member of the tree! The tree can break,
+  // the left child's key might turn larger or other bad things. Also, after
+  // delete the node is not part of the tree anymore and links are invalid.
+  // The best bet is to set parent, left and child to nil after the delete.
   /** @internal */_deleteNode(node: Node<K, V>): boolean {
-    if (nil(node)) return false
+    if (node.nil) return false
 
     this._size--
 
     let child: Node<K, V>, parent: Node<K, V>, red: boolean
-    if (ok(node.left) && ok(node.right)) {
-      const next = this._firstNode(node.right)
+    if (node._left.ok && node._right.ok) {
+      const next = this._firstNode(node._right)
       if (node === this._root) this._root = next
-      else node === node.parent.left
-        ? node.parent._left = next
-        : node.parent._right = next
-      child = next.right, parent = next.parent, red = next.red
+      else node === node._parent._left
+        ? node._parent._left = next
+        : node._parent._right = next
+      child = next._right, parent = next._parent, red = next._red
       if (node === parent) parent = next
       else {
-        if (ok(child)) child._parent = parent
+        if (child.ok) child._parent = parent
         parent._left = child
-        next._right = node.right
-        node.right._parent = next
+        next._right = node._right
+        node._right._parent = next
       }
-      next._parent = node.parent
-      next._black = node.black
-      node.left._parent = next
+      next._parent = node._parent
+      next._black = node._black
+      node._left._parent = next
       if (red) return true
     }
     else {
-      ok(node.left) ? child = node.left : child = node.right
-      parent = node.parent, red = node.red
-      if (ok(child)) child._parent = parent
+      node._left.ok ? child = node._left : child = node._right
+      parent = node._parent, red = node._red
+      if (child.ok) child._parent = parent
       if (node === this._root) this._root = child
-      else parent.left === node ? parent._left = child : parent._right = child
+      else parent._left === node ? parent._left = child : parent._right = child
       if (red) return true
     }
 
     // Reinstate the red-black tree invariants after the delete
     node = child
-    while (node !== this._root && node.black) {
-      if (node === parent.left) {
-        let brother = parent.right
-        if (brother.red) {
+    while (node !== this._root && node._black) {
+      if (node === parent._left) {
+        let brother = parent._right
+        if (brother._red) {
           brother._black = parent._red = true
           this._leftRotate(parent)
-          brother = parent.right
+          brother = parent._right
         }
-        if (brother.left.black && brother.right.black) {
+        if (brother._left._black && brother._right._black) {
           brother._red = true
           node = parent
-          parent = node.parent
+          parent = node._parent
           continue
         }
-        if (brother.right.black) {
-          brother.left._black = brother._red = true
+        if (brother._right._black) {
+          brother._left._black = brother._red = true
           this._rightRotate(brother)
-          brother = parent.right
+          brother = parent._right
         }
-        brother._black = parent.black
-        parent._black = brother.right._black = true
+        brother._black = parent._black
+        parent._black = brother._right._black = true
         this._leftRotate(parent)
         node = this._root
         break
       }
       else {
-        let brother = parent.left
-        if (brother.red) {
+        let brother = parent._left
+        if (brother._red) {
           brother._black = parent._red = true
           this._rightRotate(parent)
-          brother = parent.left
+          brother = parent._left
         }
-        if (brother.left.black && brother.right.black) {
+        if (brother._left._black && brother._right._black) {
           brother._red = true
           node = parent
-          parent = node.parent
+          parent = node._parent
           continue
         }
-        if (brother.left.black) {
-          brother.right._black = brother._red = true
+        if (brother._left._black) {
+          brother._right._black = brother._red = true
           this._leftRotate(brother)
-          brother = parent.left
+          brother = parent._left
         }
-        brother._black = parent.black
-        parent._black = brother.left._black = true
+        brother._black = parent._black
+        parent._black = brother._left._black = true
         this._rightRotate(parent)
         node = this._root
         break
       }
     }
-    if (ok(node)) node._black = true
+    if (node.ok) node._black = true
     return true
   }
 
   /** @internal */ _leftRotate(node: Node<K, V>): void {
-    const child = node.right
-    node._right = child.left
-    if (ok(child.left)) child.left._parent = node
-    child._parent = node.parent
+    const child = node._right
+    node._right = child._left
+    if (child._left.ok) child._left._parent = node
+    child._parent = node._parent
     if (node === this._root) this._root = child
-    else if (node === node.parent.left) node.parent._left = child
-    else node.parent._right = child
+    else if (node === node._parent._left) node._parent._left = child
+    else node._parent._right = child
     node._parent = child
     child._left = node
   }
 
   /** @internal */ _rightRotate(node: Node<K, V>): void {
-    const child = node.left
-    node._left = child.right
-    if (ok(child.right)) child.right._parent = node
-    child._parent = node.parent
+    const child = node._left
+    node._left = child._right
+    if (child._right.ok) child._right._parent = node
+    child._parent = node._parent
     if (node === this._root) this._root = child
-    else if (node === node.parent.left) node.parent._left = child
-    else node.parent._right = child
+    else if (node === node._parent._left) node._parent._left = child
+    else node._parent._right = child
     node._parent = child
     child._right = node
   }
@@ -368,9 +399,11 @@ function isIterable(obj: any): obj is Iterable<unknown> {
 }
 
 
-// different from LessOp: second argument is Node, not key!
+// Different from LessOp: second argument is Node, not key!
 type Less<K, N> = (key: K, node: N) => boolean
 
+// An abbreviation
+type IterIter<R> = IterableIterator<R>
 
 // Interface to expose a few properties of Tree to the iterator
 interface IterTree<K, N> {
@@ -379,7 +412,6 @@ interface IterTree<K, N> {
   _firstNode(): N
 }
 
-
 // Iterator implementation
 // K  key type
 // V  value type
@@ -387,7 +419,7 @@ interface IterTree<K, N> {
 // N  tree node type, typically N extends Node<K, V>
 // T  tree type, typically T extends IterTree<N>
 class Iter<K, V, R, N extends Node<K, V>, T extends IterTree<K, N>>
-implements IterableIterator<R>
+implements IterIter<R>
 {
   /** @internal */ _started: boolean = false
   /** @internal */ _node: N
@@ -398,24 +430,24 @@ implements IterableIterator<R>
   constructor(
     tree: T,
     result: (node: N) => R,
-    start: N = Node.nil as N,
-    end: N = Node.nil as N,
+    start: N = Node.nilNode as N,
+    end: N = Node.nilNode as N,
   ) {
     this._tree = tree
     this._result = result
     this._node = start
-    if (ok(start) && ok(end) && !tree._less(start.key, end)) end = start
+    if (start.ok && end.ok && !tree._less(start.key, end)) end = start
     this._end = end
   }
 
-  [Symbol.iterator](): IterableIterator<R> { return this }
+  [Symbol.iterator](): IterIter<R> { return this }
 
   next(): IteratorResult<R> {
-    if (nil(this._node)) this._node = this._tree._firstNode()
+    if (this._node.nil) this._node = this._tree._firstNode()
     if (this._started) this._node = this._tree._nextNode(this._node)
     this._started = true
 
-    const done = nil(this._node) || this._node === this._end
+    const done = this._node.nil || this._node === this._end
     const value = done ? undefined : this._result(this._node)
     return { done, value } as IteratorResult<R>
     //                     ^^^^^^^^^^^^^^^^^^^^
