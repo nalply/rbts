@@ -1,5 +1,6 @@
 [Typescript Red-Black Tree main README](../README.md)
 
+Current as of version 0.0.5
 
 #  API Documentation
 

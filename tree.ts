@@ -3,10 +3,11 @@
 // Didnt' use private because they are needed in tests (white box testing).
 
 import { Node } from './node'
+export { Node }
 
 
 /** Type for assigning to trees, used by the constructor and [[Tree.assign]]:
- * iterator or array over key-value tuples or objects but only if K is string.
+ * iterators or arrays over entries, or objects, too, but only if K is string.
  * @typeparam K key type
  * @typeparam V value type
  */
@@ -87,6 +88,13 @@ export class Tree<K = string, V = any>implements Map<K, V> {
   /** The node with the maximum key, O(log n) */
   get maxNode(): Node<K, V> {
     return this._lastNode()
+  }
+
+  /** Clear the tree and make it unusable */
+  kill() {
+    this._root = deadNode()
+    this._size = NaN
+    Object.freeze(this)
   }
 
   // --- Start implementing Map ---
@@ -454,3 +462,15 @@ implements IterIter<R>
     // See https://github.com/Microsoft/TypeScript/issues/11375
    }
 }
+
+
+// Create an object structurally compatible to Node but throwing on any access
+const throwDead = () => { throw new TypeError('Tree is dead') }
+function deadNode(): Node<any, any> {
+  const propNames = '_key _value _parent _left _right _black _red ok nil'
+  const properties: PropertyDescriptorMap = {}
+  for (const propName of propNames.split(' '))
+    properties[propName] = { get: throwDead, set: throwDead }
+  return Object.defineProperties({}, properties)
+}
+

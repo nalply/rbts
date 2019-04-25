@@ -5,7 +5,7 @@ import { Tree } from './tree'
 
 const {
   equal, strictEqual, deepEqual, throws,
-  isFalse, isTrue, isUndefined,
+  isFalse, isTrue, isUndefined, isNaN,
   fail,
 } = chai.assert
 
@@ -390,6 +390,22 @@ test('tree properties', () => {
 
 
 // ----------------------------------------------------------------------------
+suite('dead tree')
+
+const frozen = /^Cannot (set|assign)|object is not extensible$/
+
+test('killed Tree', () => {
+  const rbt = new Tree({ a: 'alpha' })
+  rbt.kill()
+  isNaN(rbt.size)
+  const treeDead = 'Tree is dead'
+  throws(() => rbt.get('whatever'), treeDead)
+  throws(() => rbt.has('whatever'), treeDead)
+  throws(() => rbt.set('whatever', 'whatever'), treeDead)
+})
+
+
+// ----------------------------------------------------------------------------
 suite('internal node handling')
 
 
@@ -509,4 +525,37 @@ test('batch insert and delete RBT invariants', () => {
 
     isFalse(invariantViolated(rbt))
   }
+})
+
+
+// ----------------------------------------------------------------------------
+suite('README.md')
+
+
+interface Person { name: string, age: number }
+
+test('example code', () => {
+  const store = new Tree<string, Person>(
+  [
+    [ 'bDe7', { name: 'Jane Doe', age: 47 } ],
+    [ 'O3lE', { name: 'John Doe', age: 46 } ],
+    [ 'fX4z', { name: 'Billy Brown', age: 33 } ],
+    [ 'Tuac', { name: 'Vera Brown', age: 30 } ],
+    [ '5S0o', { name: 'Zoe Brown', age: 8 } ],
+  ], (a, b) => a.toUpperCase() < b.toUpperCase(),
+  )
+
+  strictEqual(store.get('Tuac')!.age, 30)
+
+  const names = [
+    'Zoe Brown', 'Jane Doe', 'Billy Brown', 'John Doe', 'Vera Brown',
+  ].values()
+  for (const person of store.values())
+    strictEqual(person.name, names.next().value)
+  isTrue(names.next().done)
+
+  isTrue(store.delete('bDe7'))
+  isFalse(store.delete('bDe7'))
+  isFalse(store.delete('TUAC'))
+  strictEqual(store.size, 4)
 })

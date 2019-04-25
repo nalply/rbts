@@ -11,7 +11,7 @@
  * anyway).
  */
 export class Node<K, V> {
-  /** @internal */ _key: K
+  /** @internal */ readonly _key: K
   /** @internal */ _value: V
   /** @internal */ _parent: Node<K, V> = Node.nilNode as Node<K, V>
   /** @internal */ _left: Node<K, V> = Node.nilNode as Node<K, V>
@@ -85,7 +85,7 @@ function _nilNode(): Node<any, any> {
 }
 
 
-// This didn't work out because of a problem with type guards. The idea was
+// Below didn't work out because of a problem with type guards. The idea was
 // to typify that Node.nilNode is special, for example that the less operation
 // in the tree doesn't work with nil. However for this to work I need to make
 // Node.ok and Node.nil reliable type guards. I keep this in the code so I
