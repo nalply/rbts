@@ -6,15 +6,6 @@ import { Node } from './node'
 export { Node }
 
 
-/** Type for assigning to trees, used by the constructor and [[Tree.assign]]:
- * iterators or arrays over entries, or objects, too, but only if K is string.
- * @typeparam K key type
- * @typeparam V value type
- */
-export type TreeAssignable<K, V> = IterableIterator<[K, V]> | Array<[K, V]>
-  | (K extends string ? Record<K, V> : never)
-
-
 /** Type for the less-than criterium after which the entries will be sorted:
  * a function to return true if entry `a` is less than entry `b`.
  * @typeparam K key type, entries are sorted by key
@@ -42,11 +33,13 @@ export class Tree<K = string, V = any>implements Map<K, V> {
    *   run in O(1) time to ensure the red-black tree efficiency
    */
   constructor(
-    source?: TreeAssignable<K, V>,
+    source?: IterableIterator<[K, V]>,
     lessOp: LessOp<K> = (a, b) => a < b,
   ) {
     this._less = (a, b) => lessOp(a, b.key)
-    if (source) this.assign(source)
+    if (source)
+      for (const entry of source)
+        this._insertNode(new Node(entry[0], entry[1]))
   }
 
   /** @returns `"[Tree size:<size>]"` with `<size>` as in [[Tree.size]] */
@@ -54,22 +47,12 @@ export class Tree<K = string, V = any>implements Map<K, V> {
     return `[${this[Symbol.toStringTag]} size:${this.size}]`
   }
 
-  /** Assign all entries from source to the tree */
-  assign(source: TreeAssignable<K, V>): this {
-    if (!isIterable(source))
-      source = Object.entries(source) as any
-
-    for (const entry of source as Iterable<[K, V]>)
-      this._insertNode(new Node(entry[0], entry[1]))
-    return this
-  }
-
   /** Iterator over nodes, sorted by key, O(log n) each step
    * @param start iteration start with this node (inclusive)
    * @param end iteration end before this node (exclusive) or [[Node.nilNode]]
    *   to iterate to the end
    */
-  nodes(start?: Node<K, V>, end?: Node<K, V>): IterIter<Node<K, V>> {
+  nodes(start?: Node<K, V>, end?: Node<K, V>): IterableIterator<Node<K, V>> {
     return this._iterator<Node<K, V>>(node => node, start, end)
   }
 
@@ -154,22 +137,22 @@ export class Tree<K = string, V = any>implements Map<K, V> {
   }
 
   /** Indicate that Tree is iterable but same as [[Tree.entries]] */
-  [Symbol.iterator](): IterIter<[K, V]> {
+  [Symbol.iterator](): IterableIterator<[K, V]> {
     return this.entries()
   }
 
   /** Iterator over entries, sorted by key, O(log n) each step */
-  entries(start?: Node<K, V>, end?: Node<K, V>): IterIter<[K, V]> {
+  entries(start?: Node<K, V>, end?: Node<K, V>): IterableIterator<[K, V]> {
     return this._iterator<[K, V]>(node => node.entry(), start, end)
   }
 
   /** Iterator over keys, sorted, O(log n) each step */
-  keys(start?: Node<K, V>, end?: Node<K, V>): IterIter<K> {
+  keys(start?: Node<K, V>, end?: Node<K, V>): IterableIterator<K> {
     return this._iterator<K>(node => node.key, start, end)
   }
 
   /** Iterator over values, sorted by key, O(log n) each step */
-  values(start?: Node<K, V>, end?: Node<K, V>): IterIter<V> {
+  values(start?: Node<K, V>, end?: Node<K, V>): IterableIterator<V> {
     return this._iterator<V>(node => node.value, start, end)
   }
 
@@ -187,7 +170,7 @@ export class Tree<K = string, V = any>implements Map<K, V> {
     get: (node: Node<K, V>) => R,
     start?: Node<K, V>,
     end?: Node<K, V>,
-  ): IterIter<R> {
+  ): IterableIterator<R> {
     return new Iter<K, V, R, Node<K, V>, Tree<K, V>>(this, get, start, end)
   }
 
@@ -410,9 +393,6 @@ function isIterable(obj: any): obj is Iterable<unknown> {
 // Different from LessOp: second argument is Node, not key!
 type Less<K, N> = (key: K, node: N) => boolean
 
-// An abbreviation
-type IterIter<R> = IterableIterator<R>
-
 // Interface to expose a few properties of Tree to the iterator
 interface IterTree<K, N> {
   _less: Less<K, N>
@@ -427,7 +407,7 @@ interface IterTree<K, N> {
 // N  tree node type, typically N extends Node<K, V>
 // T  tree type, typically T extends IterTree<N>
 class Iter<K, V, R, N extends Node<K, V>, T extends IterTree<K, N>>
-implements IterIter<R>
+implements IterableIterator<R>
 {
   /** @internal */ _started: boolean = false
   /** @internal */ _node: N
@@ -448,7 +428,7 @@ implements IterIter<R>
     this._end = end
   }
 
-  [Symbol.iterator](): IterIter<R> { return this }
+  [Symbol.iterator](): IterableIterator<R> { return this }
 
   next(): IteratorResult<R> {
     if (this._node.nil) this._node = this._tree._firstNode()

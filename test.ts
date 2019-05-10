@@ -1,11 +1,11 @@
 import * as chai from 'chai'
 import { debug } from 'debug'
 import { Node } from './node'
-import { Tree } from './tree'
+import { LessOp, Tree } from './tree'
 
 const {
   equal, strictEqual, deepEqual, throws,
-  isFalse, isTrue, isUndefined, isNaN,
+  isFalse, isTrue, isUndefined, isNaN, isOk,
   fail,
 } = chai.assert
 
@@ -100,6 +100,20 @@ function depth(node: Node<any, any>): number {
 }
 
 
+function fromObject<V>(obj: Record<string, V>): Tree<string, V> {
+  return fromEntries(Object.entries(obj))
+}
+
+
+function fromEntries<K, V>(entries: Array<[K, V]>): Tree<K, V> {
+  return new Tree(entries.values())
+}
+
+function fromEntriesLess<K, V>(entries: Array<[K, V]>, less: LessOp<K>): Tree<K, V> {
+  return new Tree(entries.values(), less)
+}
+
+
 // ----------------------------------------------------------------------------
 suite('empty tree')
 
@@ -172,14 +186,13 @@ test('tree properties', () => {
 // ----------------------------------------------------------------------------
 suite('one insertion')
 
-
 test('RBT invariants', () => {
-  isFalse(invariantViolated(new Tree({a: 'alpha'})))
+  isFalse(invariantViolated(fromObject({a: 'alpha'})))
 })
 
 
 test('properties of tree with one node', () => {
-  const rbt = new Tree<string, string>({a: 'alpha'})
+  const rbt = fromObject({a: 'alpha'})
 
   isUndefined(rbt.get('whatever'))
 
@@ -232,7 +245,7 @@ suite('one insertion, one deletion')
 
 
 test('after one deletion', () => {
-  const rbt = new Tree<string, string>({a: 'alpha'})
+  const rbt = fromObject({a: 'alpha'})
   const root = rbt._root
   isTrue(rbt.delete('a'))
   strictEqual(rbt.size, 0)
@@ -251,7 +264,7 @@ suite('iteration')
 
 
 test('one insertion', () => {
-  const rbt = new Tree<string, string>({a: 'alpha'})
+  const rbt = fromObject({a: 'alpha'})
   equal([...rbt.keys()].join(','), 'a')
   equal([...rbt.values()].join(','), 'alpha')
 
@@ -272,7 +285,7 @@ test('one insertion', () => {
 
 // ----------------------------------------------------------------------------
 test('start-end', () => {
-  const rbt = new Tree<string, number>({
+  const rbt = fromObject({
     0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9,
   })
   equal([...rbt.keys()].join(','), '0,1,2,3,4,5,6,7,8,9')
@@ -336,7 +349,7 @@ test('RBT invariants', () => {
   for (let c = 97; c <= 122; c++)
     entries.push([String.fromCodePoint(c), '' + c])
 
-  const rbt = new Tree<string, string>(entries)
+  const rbt = fromEntries(entries)
   isFalse(invariantViolated(rbt), 'invariant violated')
 })
 
@@ -346,7 +359,7 @@ suite('deletion')
 
 
 test('single', () => {
-  const rbt = new Tree<string, string>({ a: 'alpha', b: 'beta', g: 'gamma' })
+  const rbt = fromObject({ a: 'alpha', b: 'beta', g: 'gamma' })
   strictEqual([...rbt.keys()].join(), 'a,b,g')
   const node = rbt.getNode('b')
   strictEqual(node.value, 'beta')
@@ -367,7 +380,7 @@ suite('concurrent modification')
 test('tree properties', () => {
   const source: Record<string, number> = {}
 ; [...Array(5).keys()].map(value => source[value] = value)
-  const rbt = new Tree<string, number>(source)
+  const rbt = fromObject(source)
   equal([...rbt.keys()].join(','), '0,1,2,3,4')
   equal([...rbt.values()].join(','), '0,1,2,3,4')
 
@@ -395,7 +408,7 @@ suite('dead tree')
 const frozen = /^Cannot (set|assign)|object is not extensible$/
 
 test('killed Tree', () => {
-  const rbt = new Tree({ a: 'alpha' })
+  const rbt = fromObject({ a: 'alpha' })
   rbt.kill()
   isNaN(rbt.size)
   const treeDead = 'Tree is dead'
@@ -487,7 +500,7 @@ test('mixed insert-delete RBT invariants', () => {
       }
       else if (rbt.size > 0) {
         const m: number = irand(rbt.size)
-        let node = rbt.minNode as Node<number, null>
+        let node = rbt.minNode
         for (let j = 0; j < m; j++) node = rbt._nextNode(node)
         rbt._deleteNode(node)
       }
@@ -535,17 +548,19 @@ suite('README.md')
 interface Person { name: string, age: number }
 
 test('example code', () => {
-  const store = new Tree<string, Person>(
-  [
-    [ 'bDe7', { name: 'Jane Doe', age: 47 } ],
-    [ 'O3lE', { name: 'John Doe', age: 46 } ],
-    [ 'fX4z', { name: 'Billy Brown', age: 33 } ],
-    [ 'Tuac', { name: 'Vera Brown', age: 30 } ],
-    [ '5S0o', { name: 'Zoe Brown', age: 8 } ],
-  ], (a, b) => a.toUpperCase() < b.toUpperCase(),
+  const store = fromEntriesLess(
+    [
+      [ 'bDe7', { name: 'Jane Doe', age: 47 } ],
+      [ 'O3lE', { name: 'John Doe', age: 46 } ],
+      [ 'fX4z', { name: 'Billy Brown', age: 33 } ],
+      [ 'Tuac', { name: 'Vera Brown', age: 30 } ],
+      [ '5S0o', { name: 'Zoe Brown', age: 8 } ],
+    ], (a, b) => a.toUpperCase() < b.toUpperCase(),
   )
 
-  strictEqual(store.get('Tuac')!.age, 30)
+  const vera = store.get('Tuac')
+  isOk(vera)
+  if (vera) strictEqual(vera.age, 30)
 
   const names = [
     'Zoe Brown', 'Jane Doe', 'Billy Brown', 'John Doe', 'Vera Brown',
