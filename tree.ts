@@ -11,7 +11,7 @@ export { Node }
  * @typeparam K key type
  * @typeparam V value type
  */
-export type TreeAssignable<K, V> = Iterator<[K, V]> | Array<[K, V]>
+export type TreeAssignable<K, V> = IterableIterator<[K, V]> | Array<[K, V]>
   | (K extends string ? Record<K, V> : never)
 
 
